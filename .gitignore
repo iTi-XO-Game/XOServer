@@ -1,0 +1,84 @@
+############################
+# Java / Build Artifacts
+############################
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+/out/
+/build/
+/dist/
+/target/
+
+############################
+# JavaFX Runtime
+############################
+javafx-sdk/
+javafx-runtime/
+
+############################
+# Apache Derby Database
+############################
+# Embedded or Network DB folders
+derby.log
+*.lck
+
+# Derby database directories
+db/
+data/
+derby/
+*/derby/
+*/data/
+
+# Network Server (derbynet)
+service.properties
+
+############################
+# Server Runtime Files
+############################
+logs/
+tmp/
+temp/
+*.pid
+
+############################
+# IDEs
+############################
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+
+############################
+# OS Files
+############################
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+############################
+# Git
+############################
+*.orig
+*.rej
+
+############################
+# Environment / Secrets
+############################
+.env
+*.env
+application-local.properties
+application-dev.properties
+
+############################
+# JVM Crash Reports
+############################
+hs_err_pid*
