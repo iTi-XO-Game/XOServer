@@ -42,9 +42,10 @@ public class Clint
     public void sayHiToServer()
     {
         try {
-            // now we want to test and send json message to the server
-            message = new Message("Magdy",22);
-            // now convert it to json to send
+            Header header = new Header(Header.MessageType.REQUEST, Header.ActionType.LOGIN);
+            Object data = new LogIn("magdyoo","1234");
+            message = new Message(header,data);
+            System.out.println("Line 48" + ((LogIn)message.data).getUserName());
             String temp = gson.toJson(message);
             dos.writeUTF(temp);
         } catch (IOException e) {
