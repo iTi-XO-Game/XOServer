@@ -41,12 +41,12 @@ public class Handler
         {
             while(true)
             {
-                try {
-                    // here any messge should to be from json
+                try
+                {
                     clintMessage = gson.fromJson(dis.readUTF(), Message.class);
                     brodCastMessage(clintMessage);
-
-                } catch (IOException e) {
+                }catch (IOException e)
+                {
                     System.out.println("Clint out now");
 
                     try {
@@ -67,10 +67,15 @@ public class Handler
     {
         for (Handler val : listOfHandlers.values())
         {
-            System.out.println("CLint " + val.clintId );
-            System.out.println("CLint Name: " + message.name );
-            System.out.println("CLint age: " + message.age );
-            System.out.println("=========================");
+            String temp = gson.toJson(message);
+            System.out.println(temp);
+
+            try {
+                val.dos.writeUTF(temp);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+//            System.out.println("=========================");
         }
     }
 }
