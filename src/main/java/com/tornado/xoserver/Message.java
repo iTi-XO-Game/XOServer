@@ -1,15 +1,13 @@
 package com.tornado.xoserver;
 
-import java.awt.*;
-
-public class Messge
+public class Message
 {
-    String name;
-    int age;
+    public String name;
+    public int age;
 
-    public  Messge(String naem, int age)
+    public Message(String name, int age)
     {
-        this.name = naem;
+        this.name = name;
         this.age = age;
     }
 }

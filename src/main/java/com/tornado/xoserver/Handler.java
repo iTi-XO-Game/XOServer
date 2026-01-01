@@ -1,12 +1,12 @@
 package com.tornado.xoserver;
 
 import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import com.google.gson.Gson;
+
 
 public class Handler
 {
@@ -15,14 +15,17 @@ public class Handler
     static ConcurrentHashMap<Integer, Handler> listOfHandlers = new ConcurrentHashMap<>(); //Save Threads
 
     int clintId;
-    String clintMessage;
-    
+    Message clintMessage;
+    Gson gson ;
+
+
     public Handler(int clintId,Socket s)
     {
         try {
             this.clintId = clintId;
             dis = new DataInputStream(s.getInputStream());
             dos = new DataOutputStream(s.getOutputStream());
+            gson = new Gson();
 
             listOfHandlers.put(clintId, this);
             listenToClint();
@@ -39,7 +42,8 @@ public class Handler
             while(true)
             {
                 try {
-                    clintMessage = dis.readUTF();
+                    // here any messge should to be from json
+                    clintMessage = gson.fromJson(dis.readUTF(), Message.class);
                     brodCastMessage(clintMessage);
 
                 } catch (IOException e) {
@@ -59,12 +63,14 @@ public class Handler
 
     }
 
-    public void brodCastMessage(String message)
+    public void brodCastMessage(Message message)
     {
         for (Handler val : listOfHandlers.values())
         {
-            System.out.println("CLint " + val.clintId + ": " + message);
-//                        val.dos.writeUTF("CLint " + clintId + ": " + message); // no thread to listen now
+            System.out.println("CLint " + val.clintId );
+            System.out.println("CLint Name: " + message.name );
+            System.out.println("CLint age: " + message.age );
+            System.out.println("=========================");
         }
     }
 }
