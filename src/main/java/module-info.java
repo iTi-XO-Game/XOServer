@@ -5,6 +5,6 @@ module com.tornado.xoserver {
     requires com.google.gson;
     requires java.desktop;
 
-    opens com.tornado.xoserver to javafx.fxml;
+    opens com.tornado.xoserver to javafx.fxml, com.google.gson;
     exports com.tornado.xoserver;
 }
