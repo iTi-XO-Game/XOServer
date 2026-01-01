@@ -45,12 +45,11 @@ public class Clint
             Header header = new Header(Header.MessageType.REQUEST, Header.ActionType.LOGIN);
             Object data = new LogIn("magdyoo","1234");
             message = new Message(header,data);
-            System.out.println("Line 48" + ((LogIn)message.data).getUserName());
             String temp = gson.toJson(message);
             dos.writeUTF(temp);
         } catch (IOException e) {
             System.out.println("Can't See The Server");
-            throw new RuntimeException(e);
+//            throw new RuntimeException(e);
         }
     }
 

@@ -22,9 +22,8 @@ public class Header
     }
 
 
-    public MessageType messageType;
-    public ActionType actionType;
-    // now we have to create Constrctor and sitters , gitters
+    private MessageType messageType;
+    private ActionType actionType;
 
 
     public Header() {

@@ -5,8 +5,8 @@ public class Message
 //    public String name;
 //    public int age;
 //    //ssssssssssssssssssssssssss
-    public Header header;
-    public Object data;
+    private Header header;
+    private Object data;
 
     public Message(){
         header = new Header();

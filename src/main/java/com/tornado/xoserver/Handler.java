@@ -69,13 +69,13 @@ public class Handler
         {
             String temp = gson.toJson(message);
             System.out.println(temp);
+            System.out.println("=========================");
 
-            try {
-                val.dos.writeUTF(temp);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-//            System.out.println("=========================");
+//            try {
+//                val.dos.writeUTF(temp);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
         }
     }
 }
