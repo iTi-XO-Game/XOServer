@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane fx:controller="com.tornado.xoserver.DashboardController"
+            xmlns:fx="http://javafx.com/fxml"
+            stylesheets="@/styles/dashboard.css">
+
+    <top>
+        <HBox spacing="15" alignment="CENTER_LEFT" styleClass="top-bar">
+            <Label text="Tic Tac Toe Admin" styleClass="title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="Logout" styleClass="logout-btn"/>
+            <Circle radius="16" styleClass="avatar"/>
+        </HBox>
+    </top>
+
+
+
+    <center>
+        <VBox spacing="20">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+           
+            <HBox spacing="15" styleClass="dashboard-card">
+                <VBox>
+                    <Label text="Server Dashboard" styleClass="section-title"/>
+                    <Label text="Manage server status and logs" styleClass="subtitle"/>
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Label fx:id="serverStatusLabel" text="RUNNING" styleClass="status-running"/>
+
+                <Button fx:id="startServerButton" text="Start Server" styleClass="start-btn"/>
+                <Button fx:id="stopServerButton" text="Stop Server" styleClass="stop-btn"/>
+            </HBox>
+
+
+            <HBox spacing="15">
+    <VBox fx:id="totalUsersCard" styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="CENTER" pickOnBounds="true">
+        <Label text="Total Users" styleClass="stat-title"/>
+        <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value"/>
+    </VBox>
+
+    <VBox fx:id="onlineUsersCard" styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="CENTER"  pickOnBounds="true">
+        <Label text="Online Users" styleClass="stat-title"/>
+        <Label fx:id="onlineUsersLabel" text="0" styleClass="stat-value"/>
+    </VBox>
+
+    <VBox fx:id="offlineUsersCard" styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="CENTER"  pickOnBounds="true">
+        <Label text="Offline Users" styleClass="stat-title"/>
+        <Label fx:id="offlineUsersLabel" text="0" styleClass="stat-value"/>
+    </VBox>
+
+    <VBox fx:id="activeSessionsCard" styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="CENTER"  pickOnBounds="true">
+        <Label text="Active Sessions" styleClass="stat-title"/>
+        <Label fx:id="activeSessionsLabel" text="0" styleClass="stat-value"/>
+    </VBox>
+</HBox>
+
+
+            
+            <HBox spacing="15">
+
+              
+                <VBox fx:id="chartContainer" styleClass="card" VBox.vgrow="ALWAYS">
+                    <Label text="Server Activity" styleClass="section-title"/>
+                 
+                </VBox>
+
+               
+                <VBox styleClass="card" prefWidth="350">
+                    <Label text="System Logs" styleClass="section-title"/>
+                    <ListView fx:id="logsList"/>
+                </VBox>
+
+            </HBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>
