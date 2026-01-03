@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class XOClient {
 
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
+    private static final GameManager gameManager = GameManager.getInstance();
 
     public XOClient() {}
 
@@ -27,9 +28,6 @@ public class XOClient {
                 PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
         ) {
             isConnected.set(true);
-
-            // todo send Json connected succefully!
-            writer.println("connected succefully!");
 
             String request;
             while ((request = reader.readLine()) != null) {
@@ -49,17 +47,11 @@ public class XOClient {
     }
 
     private String getResponse(String request) {
-        //todo 
-        
-        System.out.println(request);
-        
-        return "TODO getResponse for " + request;
+        return gameManager.getResponse(request);
     }
     
     private void disconnect(Socket socket) {
         isConnected.set(false);
-        
-        //todo
         
         try {
             if (!socket.isClosed()){ 

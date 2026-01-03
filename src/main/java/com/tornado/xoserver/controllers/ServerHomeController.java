@@ -7,6 +7,7 @@ package com.tornado.xoserver.controllers;
 import com.tornado.xoserver.server.ServerManager;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -38,20 +39,23 @@ public class ServerHomeController implements Initializable {
 
     @FXML
     private void startServer(ActionEvent event) {
+        serverStatus.setText("Starting server");
         ServerManager sManager = ServerManager.getInstance();
-        sManager.startServer();
-        if (sManager.isServerRunning()) {
-            serverStatus.setText("Server : On");
-        }
+        sManager.startServer(() -> {
+            Platform.runLater(() -> {
+                serverStatus.setText("Server : On");
+            });
+        });
     }
 
     @FXML
     private void stopServer(ActionEvent event) {
+        serverStatus.setText("Stopping server");
         ServerManager sManager = ServerManager.getInstance();
-        sManager.stopServer();
-        if (!sManager.isServerRunning()) {
-            serverStatus.setText("Server : Off");
-        }
+        sManager.stopServer(() -> {
+            Platform.runLater(() -> {
+                serverStatus.setText("Server : Off");
+            });
+        });
     }
-
 }

@@ -37,7 +37,7 @@ public class ServerManager {
 
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
 
-    public void startServer() {
+    public void startServer(Runnable callback) {
         if (!isRunning.compareAndSet(false, true)) {
             return;
         }
@@ -45,6 +45,7 @@ public class ServerManager {
         executor = Executors.newVirtualThreadPerTaskExecutor();
 
         serverThread = Thread.startVirtualThread(this::runServer);
+        callback.run();
     }
 
     private void runServer() {
@@ -60,45 +61,39 @@ public class ServerManager {
             }
 
         } catch (IOException ex) {
-            if (isRunning.get()) {
-                showErrorAlert(
-                        "Server Error",
-                        "Unable to start the server!",
-                        "Please, check the port number and try again."
-                );
-                stopServer();
-            }
+            stopServer(() -> {});
         }
     }
 
-    public void stopServer() {
-        if (!isRunning.compareAndSet(true, false)) {
-            return;
-        }
-
-        try {
-            if (serverThread != null) {
-                serverThread.interrupt();
-                serverThread = null;
-            }
-            if (serverSocket != null && !serverSocket.isClosed()) {
-                serverSocket.close();
-                serverSocket = null;
-            }
-            if (executor != null) {
-                executor.shutdown();
-                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                    executor.shutdownNow();
+    public void stopServer(Runnable callback) {
+        if (!isRunning.get()) return;
+        new Thread(() -> {
+            try {
+                if (serverThread != null) {
+                    serverThread.interrupt();
+                    serverThread = null;
                 }
-                executor = null;
+                if (serverSocket != null && !serverSocket.isClosed()) {
+                    serverSocket.close();
+                    serverSocket = null;
+                }
+                if (executor != null) {
+                    executor.shutdown();
+                    if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                        executor.shutdownNow();
+                    }
+                    executor = null;
+                }
+                isRunning.set(false);
+                callback.run();
+            } catch (IOException | InterruptedException ex) {
+                showErrorAlert(
+                        "Server Error",
+                        "Unable to stop the server!",
+                        "Please, try again."
+                );
             }
-        } catch (IOException | InterruptedException ex) {
-            showErrorAlert(
-                    "Server Error",
-                    "Unable to stop the server!",
-                    "Please, try again."
-            );
-        }
+        }).start();
     }
     
     private void showErrorAlert(String title, String header, String content) {
