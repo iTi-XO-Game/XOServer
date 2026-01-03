@@ -4,19 +4,72 @@
  */
 package com.tornado.xoserver.server;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
  * @author lenovo
  */
 public class XOClient {
-    
-    public XOClient(Socket clientSocket) {
+
+    private final AtomicBoolean isConnected = new AtomicBoolean(false);
+
+    public XOClient() {}
+
+    public void connect(Socket socket) {
+        try (
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+        ) {
+            isConnected.set(true);
+
+            // todo send Json connected succefully!
+            writer.println("connected succefully!");
+
+            String request;
+            while ((request = reader.readLine()) != null) {
+                
+                if (request.isBlank()) {
+                    continue;
+                }
+                String response = getResponse(request.trim());
+
+                writer.println(response);
+            }
+        } catch (IOException ex) {
+            
+        } finally {
+            disconnect(socket);
+        }
+    }
+
+    private String getResponse(String request) {
+        //todo 
         
+        System.out.println(request);
+        
+        return "TODO getResponse for " + request;
     }
     
-    public void connect() {
+    private void disconnect(Socket socket) {
+        isConnected.set(false);
+        
+        //todo
+        
+        try {
+            if (!socket.isClosed()){ 
+                socket.close();
+            }
+        } catch (IOException ex) {
+        }
+    }
     
+    public boolean isClientConnected() {
+        return isConnected.get();
     }
 }

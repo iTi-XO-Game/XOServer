@@ -55,7 +55,7 @@ public class ServerManager {
                 Socket clientSocket = serverSocket.accept();
 
                 executor.submit(() -> {
-                    new XOClient(clientSocket).connect();
+                    new XOClient().connect(clientSocket);
                 });
             }
 
