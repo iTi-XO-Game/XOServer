@@ -79,7 +79,7 @@ public class ServerManager {
                 }
                 if (executor != null) {
                     executor.shutdown();
-                    if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
                         executor.shutdownNow();
                     }
                     executor = null;
