@@ -1,12 +1,10 @@
-package server.dao;
+package com.tornado.xoserver.database;
 
 
-import server.model.GameHistory;
+import com.tornado.xoserver.models.GameHistory;
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import server.database.DBConnection;
 
 public class GameHistoryDAO {
 
@@ -30,7 +28,7 @@ public class GameHistoryDAO {
             return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
     }
@@ -62,7 +60,7 @@ public class GameHistoryDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return null;
     }
@@ -93,7 +91,7 @@ public class GameHistoryDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return list;
     }
@@ -107,7 +105,7 @@ public class GameHistoryDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
     }
