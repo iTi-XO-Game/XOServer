@@ -7,6 +7,6 @@ module com.tornado.xoserver {
 
 
     opens com.tornado.xoserver.controllers to javafx.fxml;
-    opens com.tornado.xoserver.models com.google.gson;
+    opens com.tornado.xoserver.models to com.google.gson;
     exports com.tornado.xoserver;
 }
