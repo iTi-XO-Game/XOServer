@@ -2,29 +2,32 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package server.model;
+package com.tornado.xoserver.models;
 
 /**
  *
  * @author Dell
  */
 public class Player {
+
     private int id;
     private String username;
     private int wins;
     private int draws;
     private int losses;
-    
+
     public Player() {
-       }
+    }
+
     public Player(int id, String username,
-              int wins, int draws,
-              int losses) {
-    this.id = id;
-    this.username = username;
-    this.wins = wins;
-    this.draws = draws;
-    this.losses = losses;
+            int wins, int draws,
+            int losses
+    ) {
+        this.id = id;
+        this.username = username;
+        this.wins = wins;
+        this.draws = draws;
+        this.losses = losses;
     }
 
     public void setId(int id) {
@@ -46,10 +49,6 @@ public class Player {
     public void setLosses(int losses) {
         this.losses = losses;
     }
-
-   
-    
-    
 
     public int getId() {
         return id;

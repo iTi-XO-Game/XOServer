@@ -2,12 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package server.dao;
+package com.tornado.xoserver.database;
 
 import java.sql.Connection;
-import server.database.DBConnection;
 import java.sql.*;
-import server.model.Player;
+import com.tornado.xoserver.models.Player;
 
 
 /**
@@ -27,7 +26,7 @@ public class PlayerDAO {
             return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
     }
@@ -51,7 +50,7 @@ public class PlayerDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return null;
     }
@@ -81,7 +80,7 @@ public class PlayerDAO {
             return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
     }
@@ -96,7 +95,7 @@ public class PlayerDAO {
             return ps.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             return false;
         }
     }

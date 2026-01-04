@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package server.model;
+package com.tornado.xoserver.models;
 
 import java.time.LocalDateTime;
 
@@ -11,11 +11,11 @@ import java.time.LocalDateTime;
  * @author Dell
  */
 public class GameHistory {
-    
+
     private int id;
     private int playerXId;
     private int playerOId;
-    private Integer winnerId; 
+    private Integer winnerId;
     private boolean draw;
     private LocalDateTime gameDate;
 
@@ -23,15 +23,15 @@ public class GameHistory {
     }
 
     public GameHistory(int playerXId, int playerOId,
-                       Integer winnerId, boolean draw,
-                       LocalDateTime gameDate) {
+            Integer winnerId, boolean draw,
+            LocalDateTime gameDate
+    ) {
         this.playerXId = playerXId;
         this.playerOId = playerOId;
         this.winnerId = winnerId;
         this.draw = draw;
         this.gameDate = gameDate;
     }
-
 
     public int getId() {
         return id;
@@ -80,6 +80,5 @@ public class GameHistory {
     public void setGameDate(LocalDateTime gameDate) {
         this.gameDate = gameDate;
     }
-    
 
 }
