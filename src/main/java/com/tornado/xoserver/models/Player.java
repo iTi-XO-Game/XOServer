@@ -15,19 +15,30 @@ public class Player {
     private int wins;
     private int draws;
     private int losses;
+    private boolean isInGame;
 
     public Player() {
     }
 
     public Player(int id, String username,
             int wins, int draws,
-            int losses
+            int losses,
+            boolean isInGame
     ) {
         this.id = id;
         this.username = username;
         this.wins = wins;
         this.draws = draws;
         this.losses = losses;
+        this.isInGame = isInGame;
+    }
+
+    public boolean isIsInGame() {
+        return isInGame;
+    }
+
+    public void setIsInGame(boolean isInGame) {
+        this.isInGame = isInGame;
     }
 
     public void setId(int id) {
