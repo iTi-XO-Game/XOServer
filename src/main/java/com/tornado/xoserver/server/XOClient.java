@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class XOClient {
 
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
-    private static final GameManager gameManager = GameManager.getInstance();
+    private static final ResponseManager responseManager = ResponseManager.getInstance();
 
     public XOClient() {}
 
@@ -47,7 +47,7 @@ public class XOClient {
     }
 
     private String getResponse(String request) {
-        return gameManager.getResponse(request);
+        return responseManager.getResponse(request);
     }
     
     private void disconnect(Socket socket) {

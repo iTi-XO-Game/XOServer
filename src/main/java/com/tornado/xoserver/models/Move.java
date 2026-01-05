@@ -1,4 +1,4 @@
-package com.tornado.xoserver;
+package com.tornado.xoserver.models;
 
 public class Move {
 

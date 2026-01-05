@@ -1,4 +1,4 @@
-package com.tornado.xoserver;
+package com.tornado.xoserver.models;
 /*
 should has
 1) enum has messageType
