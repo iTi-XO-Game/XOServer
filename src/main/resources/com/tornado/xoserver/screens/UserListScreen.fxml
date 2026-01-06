@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import java.net.URL?>
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.tornado.xoserver.UserListController"
-            stylesheets="@/styles/dashboard.css">
+            fx:controller="com.tornado.xoserver.controllers.UserListController"
+            >
 
+    <stylesheets>
+        <URL value="@../styles/dashboard.css" />
+    </stylesheets>
     <top>
         <HBox styleClass="top-bar">
             <Label fx:id="titleLabel" styleClass="section-title"/>
