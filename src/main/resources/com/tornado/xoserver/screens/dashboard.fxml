@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane styleClass="root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tornado.xoserver.controllers.DashboardController">
+
+    <stylesheets>
+        <URL value="@../styles/dashboard.css" />
+    </stylesheets>
+    
+    <top>
+        <BorderPane prefHeight="60" styleClass="top-bar">
+            <left>
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <ImageView id="logo" fitHeight="31.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true" smooth="true">
+                        <Image url="@../images/xo_tiles.png" />
+                    </ImageView>
+                    <Label prefHeight="27.0" prefWidth="200.0" styleClass="title" text="Tic Tac Toe Admin" />
+                </HBox>
+            </left>
+        </BorderPane>
+    </top>
+
+    
+    <center>
+        <VBox spacing="20">
+            <padding>
+                <Insets bottom="20" left="20" right="20" top="20" />
+            </padding>
+
+            
+            <HBox spacing="15" styleClass="dashboard-card">
+                <VBox>
+                    <Label styleClass="section-title" text="Server Dashboard" />
+                    <Label styleClass="subtitle" text="Manage game server status &amp; logs" />
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <Label fx:id="serverStatusLabel" styleClass="status-running" text="RUNNING" />
+
+                <Button fx:id="startServerButton" onAction="#onStartClick" styleClass="start-btn">
+                    <graphic>
+                        <HBox alignment="CENTER" spacing="8">
+
+                            <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/play.png" />
+                                </image>
+                            </ImageView>
+
+
+                            <Label styleClass="button-text" text="Start Server" />
+                        </HBox>
+                    </graphic>
+                </Button>
+
+                <Button fx:id="stopServerButton" onAction="#onStopClick" styleClass="stop-btn">
+                    <graphic>
+                        <HBox alignment="CENTER" spacing="8">
+                            <ImageView fitHeight="20.0" fitWidth="20.0" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/stop.png" />
+                                </image>
+                            </ImageView>
+
+
+                            <Label styleClass="button-text" text="Stop Server" />
+                        </HBox>
+                    </graphic>
+                </Button>
+
+            </HBox>
+
+
+            <HBox spacing="15">
+
+               
+                <VBox fx:id="totalUsersCard" alignment="TOP_LEFT" onMouseClicked="#onTotalUsersClick" spacing="12" styleClass="stat-card" HBox.hgrow="ALWAYS">
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <StackPane styleClass="usersIcon">
+                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                            <image>
+                                <Image url="@../images/totalusers.png" />
+                            </image>
+                        </ImageView>
+                        </StackPane>
+            
+
+                        <Label styleClass="stat-title" text="TOTAL USERS" />
+                    </HBox>
+
+                    <Label fx:id="totalUsersLabel" styleClass="stat-value" text="0" />
+                </VBox>
+
+             
+                <VBox fx:id="onlineUsersCard" alignment="TOP_LEFT" onMouseClicked="#onOnlineUsersClick" spacing="12" styleClass="stat-card" HBox.hgrow="ALWAYS">
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <StackPane styleClass="onlineIcon">
+                            
+                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                            <image>
+                                <Image url="@../images/onlineusers.png" />
+                            </image>
+                        </ImageView>
+                        </StackPane>
+
+                        <Label styleClass="stat-title" text="ONLINE USERS" />
+                    </HBox>
+
+                    <Label fx:id="onlineUsersLabel" styleClass="stat-value" text="0" />
+                </VBox>
+
+                
+                <VBox fx:id="offlineUsersCard" alignment="TOP_LEFT" onMouseClicked="#onOfflineUsersClick" spacing="12" styleClass="stat-card" HBox.hgrow="ALWAYS">
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <StackPane styleClass="offlineIcon">
+                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                            <image>
+                                <Image url="@../images/oflineusers.png" />
+                            </image>
+                        </ImageView>
+                        </StackPane>
+
+                        <Label styleClass="stat-title" text="OFFLINE USERS" />
+                    </HBox>
+
+                    <Label fx:id="offlineUsersLabel" styleClass="stat-value" text="0" />
+                </VBox>
+
+               
+                <VBox fx:id="activeSessionsCard" alignment="TOP_LEFT" onMouseClicked="#onActiveSessionsClick" spacing="12" styleClass="stat-card" HBox.hgrow="ALWAYS">
+
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <StackPane styleClass="sessionsIcon">
+                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                            <image>
+                                <Image url="@../images/activesessions.png" />
+                            </image>
+                        </ImageView>
+                        </StackPane>
+
+                        <Label styleClass="stat-title" text="ACTIVE SESSIONS" />
+                    </HBox>
+
+                    <Label fx:id="activeSessionsLabel" styleClass="stat-value" text="0" />
+                </VBox>
+
+            </HBox>
+
+
+            
+            <HBox spacing="15">
+
+                <VBox fx:id="chartContainer" styleClass="card" VBox.vgrow="ALWAYS">
+                    <Label styleClass="section-title" text="Server Activity" />
+                </VBox>
+
+                <VBox prefWidth="350" styleClass="card">
+                    <Label styleClass="section-title" text="System Logs" />
+                    <ListView fx:id="logsList" />
+                </VBox>
+
+            </HBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>

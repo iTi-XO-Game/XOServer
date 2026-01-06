@@ -1,4 +1,4 @@
-package com.tornado.xoserver;
+package com.tornado.xoserver.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
