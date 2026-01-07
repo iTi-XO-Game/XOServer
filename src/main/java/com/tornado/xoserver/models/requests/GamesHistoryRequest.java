@@ -1,4 +1,4 @@
-package com.mycompany.clientside.client.requests;
+package com.tornado.xoserver.models.requests;
 
 public class GamesHistoryRequest
 {

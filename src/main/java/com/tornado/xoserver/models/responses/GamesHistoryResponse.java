@@ -1,6 +1,6 @@
-package com.mycompany.clientside.client.responses;
+package com.tornado.xoserver.models.responses;
 
-import com.mycompany.clientside.models.GameModel ;
+import com.tornado.xoserver.models.GameModel;
 
 import java.util.ArrayList;
 
