@@ -2,7 +2,10 @@ package com.tornado.xoserver.database;
 
 
 import com.tornado.xoserver.models.GameHistory;
+import com.tornado.xoserver.models.GameModel;
+
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,5 +111,21 @@ public class GameHistoryDAO {
             //e.printStackTrace();
             return false;
         }
+    }
+
+    public static ArrayList<GameModel>  getPlayerGames(int playerId)
+    {
+        ArrayList<GameModel>gameModels = new ArrayList<>();
+
+        LocalDateTime matchStart = LocalDateTime.of(2023, 10, 24, 14, 30, 0);
+        LocalDateTime matchEnd = LocalDateTime.of(2023, 10, 24, 14, 34, 21);
+        gameModels.add(new GameModel(1, 100, 200, 100, matchStart, matchEnd));
+        gameModels.add(new GameModel(2, 100, 200, -1, matchStart, matchEnd));
+        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
+        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
+        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
+        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
+
+        return gameModels;
     }
 }
