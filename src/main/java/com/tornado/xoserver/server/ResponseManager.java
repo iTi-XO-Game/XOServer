@@ -5,6 +5,8 @@
 package com.tornado.xoserver.server;
 
 import com.tornado.xoserver.models.Player;
+import com.tornado.xoserver.server.handling.GamesHistoryHandling;
+
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -62,6 +64,9 @@ public class ResponseManager {
             }
             case LEAVE_GAME -> {
                 //response = handleLeaveGame(requestJson);
+            }
+            case PLAYER_GAMES_HISTORY -> {
+                response = GamesHistoryHandling.getGamesHistory(requestJson);
             }
         }
         return response;

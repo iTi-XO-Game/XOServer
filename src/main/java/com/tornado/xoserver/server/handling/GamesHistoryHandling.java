@@ -1,4 +1,21 @@
 package com.tornado.xoserver.server.handling;
 
-public class GamesHistoryHandling {
+import com.tornado.xoserver.database.GameHistoryDAO;
+import com.tornado.xoserver.models.GameModel;
+import com.tornado.xoserver.models.requests.GamesHistoryRequest;
+import com.tornado.xoserver.models.responses.GamesHistoryResponse;
+import com.tornado.xoserver.server.JsonUtils;
+
+import java.util.ArrayList;
+
+public class GamesHistoryHandling
+{
+    public static String getGamesHistory(String requestJson)
+    {
+        GamesHistoryRequest request = JsonUtils.fromJson(requestJson,GamesHistoryRequest.class);
+        ArrayList<GameModel> data = GameHistoryDAO.getPlayerGames(request.getClientID());
+        GamesHistoryResponse response = new GamesHistoryResponse(data);
+
+        return  JsonUtils.toJson(response);
+    }
 }
