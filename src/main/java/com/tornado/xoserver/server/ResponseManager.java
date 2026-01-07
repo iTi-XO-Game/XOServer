@@ -67,9 +67,8 @@ public class ResponseManager {
         return response;
     }
 
+    // I know that this function may not be placed on the best place, but for now let's celebrate that it's actually working
     String handleLogin(String requestJson) {
-        System.out.println("line 71");
-        System.out.println(requestJson);
         LoginRequest loginRequest=null;
         try {
              loginRequest = JsonUtils.fromJson(requestJson, LoginRequest.class);
@@ -77,11 +76,8 @@ public class ResponseManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("line 73");
         PlayerDAO playerDao = new PlayerDAO();
-        System.out.println("line 75");
         Player p = playerDao.loginPlayer(loginRequest);
-        System.out.println("are we here?");
         if (p == null) {
             return JsonUtils.toJson(new LoginResponse(StatusCode.ERROR, "No User Found"));
         } else {
