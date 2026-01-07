@@ -4,6 +4,7 @@
  */
 package com.tornado.xoserver.server;
 
+import com.tornado.xoserver.database.PlayerDAO;
 import com.tornado.xoserver.models.Player;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +23,7 @@ public class ResponseManager {
 
     private ResponseManager() {
     }
-    
+
     private final Set<Player> onlinePlayers = ConcurrentHashMap.newKeySet();
 
     public String getResponse(String request) {
@@ -42,11 +43,10 @@ public class ResponseManager {
 
     // todo add parsing logic
     private String processRequest(String requestJson, EndPoint endPoint) {
-        
         String response = "";
         switch (endPoint) {
             case LOGIN -> {
-                //response = handleLogin(requestJson);
+                response = handleLogin(requestJson);
             }
             case REGISTER -> {
                 //response = handleRegister(requestJson);
@@ -65,5 +65,27 @@ public class ResponseManager {
             }
         }
         return response;
+    }
+
+    String handleLogin(String requestJson) {
+        System.out.println("line 71");
+        System.out.println(requestJson);
+        LoginRequest loginRequest=null;
+        try {
+             loginRequest = JsonUtils.fromJson(requestJson, LoginRequest.class);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("line 73");
+        PlayerDAO playerDao = new PlayerDAO();
+        System.out.println("line 75");
+        Player p = playerDao.loginPlayer(loginRequest);
+        System.out.println("are we here?");
+        if (p == null) {
+            return JsonUtils.toJson(new LoginResponse(StatusCode.ERROR, "No User Found"));
+        } else {
+            return JsonUtils.toJson(new LoginResponse(StatusCode.SUCCESS, p.getId(), p.getUsername()));
+        }
     }
 }
