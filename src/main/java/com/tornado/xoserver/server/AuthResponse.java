@@ -4,13 +4,12 @@
  */
 package com.tornado.xoserver.server;
 
-
 /**
  *
  * @author Depogramming
  */
-
 public class AuthResponse {
+
     private StatusCode statusCode;
     private String errorMessage;
     private Integer id;
@@ -26,6 +25,10 @@ public class AuthResponse {
 
     public String getErrorMessage() {
         return errorMessage;
+    }
+
+    public AuthResponse(StatusCode statusCode) {
+        this.statusCode = statusCode;
     }
 
     public void setErrorMessage(String errorMessage) {

@@ -49,7 +49,7 @@ public class ResponseManager {
                 response = handleLogin(requestJson);
             }
             case REGISTER -> {
-                //response = handleRegister(requestJson);
+                response = handleRegister(requestJson);
             }
             case LOGOUT -> {
                 //response = handleLogout(requestJson);
@@ -69,19 +69,28 @@ public class ResponseManager {
 
     // I know that this function may not be placed on the best place, but for now let's celebrate that it's actually working
     String handleLogin(String requestJson) {
-        AuthRequest loginRequest=null;
-        try {
-             loginRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
+        AuthRequest loginRequest = null;
+        loginRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         PlayerDAO playerDao = new PlayerDAO();
         Player p = playerDao.loginPlayer(loginRequest);
         if (p == null) {
             return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "No User Found"));
         } else {
             return JsonUtils.toJson(new AuthResponse(StatusCode.SUCCESS, p.getId(), p.getUsername()));
+        }
+    }
+
+    private String handleRegister(String requestJson) {
+        AuthRequest registerRequest = null;
+        registerRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
+
+        PlayerDAO playerDao = new PlayerDAO();
+        if(playerDao.createPlayer(registerRequest.getUserName(), registerRequest.getPassword())){
+            return JsonUtils.toJson(new AuthResponse(StatusCode.SUCCESS));
+        }
+        else{
+            return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "The User Name Already Exists"));
         }
     }
 }
