@@ -68,6 +68,9 @@ public class ResponseManager {
             case PLAYER_GAMES_HISTORY -> {
                 response = GamesHistoryHandling.getGamesHistory(requestJson);
             }
+            case PLAYER_ID -> {
+                response = JsonUtils.toJson(XOClient.CLIENT_ID);
+            }
         }
         return response;
     }

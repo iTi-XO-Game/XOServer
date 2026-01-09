@@ -25,7 +25,7 @@ public class GameHistoryDAO {
                 ps.setNull(3, Types.INTEGER);
 
             ps.setInt(4, game.isDraw() ? 1 : 0);
-            ps.setTimestamp(5, Timestamp.valueOf(game.getGameDate()));
+            ps.setTimestamp(5, new Timestamp(game.getGameDate()));
 
             ps.executeUpdate();
             return true;
@@ -57,7 +57,7 @@ public class GameHistoryDAO {
 
                 game.setDraw(rs.getInt("isDraw") == 1);
                 Timestamp ts = rs.getTimestamp("gameDate");
-                game.setGameDate(ts.toLocalDateTime());
+                game.setGameDate(ts.getTime());
 
                 return game;
             }
@@ -87,8 +87,9 @@ public class GameHistoryDAO {
                 else game.setWinnerId(winner);
 
                 game.setDraw(rs.getInt("isDraw") == 1);
+
                 Timestamp ts = rs.getTimestamp("gameDate");
-                game.setGameDate(ts.toLocalDateTime());
+                game.setGameDate(ts.getTime());
 
                 list.add(game);
             }
@@ -113,19 +114,58 @@ public class GameHistoryDAO {
         }
     }
 
-    public static ArrayList<GameModel>  getPlayerGames(int playerId)
-    {
-        ArrayList<GameModel>gameModels = new ArrayList<>();
+    public static ArrayList<GameHistory> getPlayerGames(int playerId) {
 
-        LocalDateTime matchStart = LocalDateTime.of(2023, 10, 24, 14, 30, 0);
-        LocalDateTime matchEnd = LocalDateTime.of(2023, 10, 24, 14, 34, 21);
-        gameModels.add(new GameModel(1, 100, 200, 100, matchStart, matchEnd));
-        gameModels.add(new GameModel(2, 100, 200, -1, matchStart, matchEnd));
-        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
-        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
-        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
-        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
+        ArrayList<GameHistory> gameHistories = new ArrayList<>();
 
-        return gameModels;
+        String sql = "SELECT * FROM GAMESHISTORY WHERE playerXId = ? OR playerOId = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, playerId);
+            ps.setInt(2, playerId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                GameHistory game = new GameHistory();
+
+                game.setId(rs.getInt("id"));
+                game.setPlayerXId(rs.getInt("playerXId"));
+                game.setPlayerOId(rs.getInt("playerOId"));
+
+                Integer winner = rs.getObject("winnerId", Integer.class);
+                game.setWinnerId(winner);
+
+                game.setDraw(rs.getBoolean("isDraw"));
+
+                Timestamp ts = rs.getTimestamp("gameDate");
+                if (ts != null)
+                    game.setGameDate(ts.getTime());
+
+                gameHistories.add(game);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return gameHistories;
     }
+
 }
+
+
+/*
+//        LocalDateTime matchStart = LocalDateTime.of(2023, 10, 24, 14, 30, 0);
+//        LocalDateTime matchEnd = LocalDateTime.of(2023, 10, 24, 14, 34, 21);
+//        gameModels.add(new GameModel(1, 100, 200, 100, matchStart, matchEnd));
+//        gameModels.add(new GameModel(2, 100, 200, -1, matchStart, matchEnd));
+//        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
+//        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
+//        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
+//        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
+//
+//        return gameModels;
+* */

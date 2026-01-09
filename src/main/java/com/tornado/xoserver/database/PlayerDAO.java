@@ -7,6 +7,7 @@ package com.tornado.xoserver.database;
 import java.sql.Connection;
 import java.sql.*;
 import com.tornado.xoserver.models.Player;
+import com.tornado.xoserver.server.XOClient;
 
 
 /**
@@ -18,11 +19,18 @@ public class PlayerDAO {
      public boolean createPlayer(String username, String password) {
         String sql = "INSERT INTO Player(username, password) VALUES (?, ?)";
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS))
+        {
 
             ps.setString(1, username);
             ps.setString(2, password);
             ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+
+            if (rs.next())
+                XOClient.CLIENT_ID = rs.getInt(1); // to get the generated id
+
             return true;
 
         } catch (SQLException e) {

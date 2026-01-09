@@ -1,4 +1,4 @@
-package com.tornado.xoserver.models.requests;
+package com.tornado.xoserver.models;
 
 public class GamesHistoryRequest
 {

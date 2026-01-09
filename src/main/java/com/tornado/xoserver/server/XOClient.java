@@ -19,6 +19,7 @@ public class XOClient {
 
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
     private static final ResponseManager responseManager = ResponseManager.getInstance();
+    public static int CLIENT_ID;
 
     public XOClient() {}
 
