@@ -7,7 +7,7 @@ package com.tornado.xoserver.database;
 import java.sql.Connection;
 import java.sql.*;
 import com.tornado.xoserver.models.Player;
-import com.tornado.xoserver.server.LoginRequest;
+import com.tornado.xoserver.server.AuthRequest;
 
 
 /**
@@ -100,7 +100,7 @@ public class PlayerDAO {
             return false;
         }
     }
-     public Player loginPlayer(LoginRequest loginRequest) {
+     public Player loginPlayer(AuthRequest loginRequest) {
         String sql = "SELECT * FROM Player WHERE password=? AND username =?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {

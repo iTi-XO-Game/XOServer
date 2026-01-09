@@ -69,9 +69,9 @@ public class ResponseManager {
 
     // I know that this function may not be placed on the best place, but for now let's celebrate that it's actually working
     String handleLogin(String requestJson) {
-        LoginRequest loginRequest=null;
+        AuthRequest loginRequest=null;
         try {
-             loginRequest = JsonUtils.fromJson(requestJson, LoginRequest.class);
+             loginRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -79,9 +79,9 @@ public class ResponseManager {
         PlayerDAO playerDao = new PlayerDAO();
         Player p = playerDao.loginPlayer(loginRequest);
         if (p == null) {
-            return JsonUtils.toJson(new LoginResponse(StatusCode.ERROR, "No User Found"));
+            return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "No User Found"));
         } else {
-            return JsonUtils.toJson(new LoginResponse(StatusCode.SUCCESS, p.getId(), p.getUsername()));
+            return JsonUtils.toJson(new AuthResponse(StatusCode.SUCCESS, p.getId(), p.getUsername()));
         }
     }
 }

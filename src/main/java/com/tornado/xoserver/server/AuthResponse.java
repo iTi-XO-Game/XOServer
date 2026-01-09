@@ -10,7 +10,7 @@ package com.tornado.xoserver.server;
  * @author Depogramming
  */
 
-public class LoginResponse {
+public class AuthResponse {
     private StatusCode statusCode;
     private String errorMessage;
     private Integer id;
@@ -48,15 +48,15 @@ public class LoginResponse {
         this.userName = userName;
     }
 
-    public LoginResponse(StatusCode statusCode, String errorMessage) {
+    public AuthResponse(StatusCode statusCode, String errorMessage) {
         this.statusCode = statusCode;
         this.errorMessage = errorMessage;
     }
 
-    public LoginResponse() {
+    public AuthResponse() {
     }
 
-    public LoginResponse(StatusCode statusCode, Integer id, String userName) {
+    public AuthResponse(StatusCode statusCode, Integer id, String userName) {
         this.statusCode = statusCode;
         this.id = id;
         this.userName = userName;

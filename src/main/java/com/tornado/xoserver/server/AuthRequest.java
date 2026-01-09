@@ -8,14 +8,14 @@ package com.tornado.xoserver.server;
  *
  * @author Depogramming
  */
-public class LoginRequest {
+public class AuthRequest {
     private String userName;
     private String password;
 
-    public LoginRequest() {
+    public AuthRequest() {
     }
 
-    public LoginRequest(String userName, String password) {
+    public AuthRequest(String userName, String password) {
         this.userName = userName;
         this.password = password;
     }
