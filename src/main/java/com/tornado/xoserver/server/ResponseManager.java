@@ -4,6 +4,9 @@
  */
 package com.tornado.xoserver.server;
 
+import com.tornado.xoserver.models.StatusCode;
+import com.tornado.xoserver.models.AuthResponse;
+import com.tornado.xoserver.models.AuthRequest;
 import com.tornado.xoserver.database.PlayerDAO;
 import com.tornado.xoserver.models.Player;
 import java.util.Set;
@@ -68,25 +71,25 @@ public class ResponseManager {
     }
 
     // I know that this function may not be placed on the best place, but for now let's celebrate that it's actually working
-    String handleLogin(String requestJson) {
-        AuthRequest loginRequest = null;
-        loginRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
+    private String handleLogin(String requestJson) {
+        AuthRequest loginRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
 
         PlayerDAO playerDao = new PlayerDAO();
         Player p = playerDao.loginPlayer(loginRequest);
         if (p == null) {
             return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "No User Found"));
         } else {
-            return JsonUtils.toJson(new AuthResponse(StatusCode.SUCCESS, p.getId(), p.getUsername()));
+            AuthResponse authResponse = new AuthResponse(StatusCode.SUCCESS, p.getId(), p.getUsername());
+             
+            return JsonUtils.toJson(authResponse);
         }
     }
 
     private String handleRegister(String requestJson) {
-        AuthRequest registerRequest = null;
-        registerRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
+        AuthRequest registerRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
 
         PlayerDAO playerDao = new PlayerDAO();
-        if(playerDao.createPlayer(registerRequest.getUserName(), registerRequest.getPassword())){
+        if(playerDao.createPlayer(registerRequest.getUsername(), registerRequest.getPassword())){
             return JsonUtils.toJson(new AuthResponse(StatusCode.SUCCESS));
         }
         else{

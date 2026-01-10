@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.tornado.xoserver.server;
+package com.tornado.xoserver.models;
 
 /**
  *
@@ -13,7 +13,7 @@ public class AuthResponse {
     private StatusCode statusCode;
     private String errorMessage;
     private Integer id;
-    private String userName;
+    private String username;
 
     public StatusCode getStatusCode() {
         return statusCode;
@@ -43,12 +43,12 @@ public class AuthResponse {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public AuthResponse(StatusCode statusCode, String errorMessage) {
@@ -62,7 +62,7 @@ public class AuthResponse {
     public AuthResponse(StatusCode statusCode, Integer id, String userName) {
         this.statusCode = statusCode;
         this.id = id;
-        this.userName = userName;
+        this.username = userName;
     }
 
 }

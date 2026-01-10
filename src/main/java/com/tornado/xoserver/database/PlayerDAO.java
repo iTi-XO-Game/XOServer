@@ -7,7 +7,7 @@ package com.tornado.xoserver.database;
 import java.sql.Connection;
 import java.sql.*;
 import com.tornado.xoserver.models.Player;
-import com.tornado.xoserver.server.AuthRequest;
+import com.tornado.xoserver.models.AuthRequest;
 
 
 /**
@@ -43,7 +43,7 @@ public class PlayerDAO {
             if (rs.next()) {
                 Player p = new Player();
                 p.setId(rs.getInt("id"));
-                p.setUsername(rs.getString("username"));
+                p.setusername(rs.getString("username"));
                 p.setWins(rs.getInt("wins"));
                 p.setDraws(rs.getInt("draws"));
                 p.setLosses(rs.getInt("losses"));
@@ -106,14 +106,14 @@ public class PlayerDAO {
              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, loginRequest.getPassword());
-            ps.setString(2, loginRequest.getUserName());
+            ps.setString(2, loginRequest.getUsername());
 
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
                 Player p = new Player();
                 p.setId(rs.getInt("id"));
-                p.setUsername(rs.getString("username"));
+                p.setusername(rs.getString("username"));
                 p.setWins(rs.getInt("wins"));
                 p.setDraws(rs.getInt("draws"));
                 p.setLosses(rs.getInt("losses"));
