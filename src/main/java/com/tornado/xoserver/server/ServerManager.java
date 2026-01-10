@@ -16,7 +16,7 @@ import javafx.scene.control.Alert;
 
 /**
  *
- * @author lenovo
+ * @author Hossam
  */
 public class ServerManager {
 
