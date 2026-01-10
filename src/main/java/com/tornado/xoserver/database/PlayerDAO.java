@@ -57,7 +57,7 @@ public class PlayerDAO {
     }
 
 
-    public static boolean updataPlayerPass(String username, String newPass)
+    public static Boolean updataPlayerPass(String username, String newPass)
     {
         try(Connection con = DBConnection.getConnection())
         {
@@ -69,7 +69,7 @@ public class PlayerDAO {
             ps.setString(2,username);
 
             int rowsUpdated = ps.executeUpdate() ;
-            
+
             if (rowsUpdated == 1)
                 return true;
             else if (rowsUpdated == 0)
