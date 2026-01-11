@@ -5,6 +5,7 @@
 package com.tornado.xoserver.models;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 /**
  *
@@ -17,7 +18,7 @@ public class GameHistory {
     private int playerOId;
     private Integer winnerId;
     private boolean draw;
-    private LocalDateTime gameDate;
+    private long gameDate;
 
     public GameHistory() {
     }
@@ -30,7 +31,10 @@ public class GameHistory {
         this.playerOId = playerOId;
         this.winnerId = winnerId;
         this.draw = draw;
-        this.gameDate = gameDate;
+
+        this.gameDate = gameDate.atZone(ZoneOffset.systemDefault())
+                .toInstant()
+                .toEpochMilli();
     }
 
     public int getId() {
@@ -73,11 +77,11 @@ public class GameHistory {
         this.draw = draw;
     }
 
-    public LocalDateTime getGameDate() {
+    public long getGameDate() {
         return gameDate;
     }
 
-    public void setGameDate(LocalDateTime gameDate) {
+    public void setGameDate(long gameDate) {
         this.gameDate = gameDate;
     }
 
