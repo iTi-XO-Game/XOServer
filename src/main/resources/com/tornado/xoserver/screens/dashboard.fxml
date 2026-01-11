@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
@@ -13,7 +14,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane styleClass="root" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tornado.xoserver.controllers.DashboardController">
+<BorderPane fx:id="rootPane" styleClass="root" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tornado.xoserver.controllers.DashboardController">
 
     <stylesheets>
         <URL value="@../styles/dashboard.css" />
@@ -39,11 +40,31 @@
                 <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
 
-            
+                  
             <HBox spacing="15" styleClass="dashboard-card">
                 <VBox>
                     <Label styleClass="section-title" text="Server Dashboard" />
                     <Label styleClass="subtitle" text="Manage game server status &amp; logs" />
+                    <HBox maxWidth="1.7976931348623157E308" spacing="15.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+                        <children>
+                            <VBox maxWidth="1.7976931348623157E308" spacing="5.0" HBox.hgrow="ALWAYS">
+                                <children>
+                                    <Label style="-fx-font-weight: bold; -fx-text-fill: #555;" text="Current Server IP" />
+                                      <TextField fx:id="ipTextField" editable="false" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="40.0" style="-fx-padding: 0 40 0 10; -fx-background-radius: 5;" text="192.168.1.1" />
+                                </children>
+                            </VBox>
+
+                            <VBox maxWidth="1.7976931348623157E308" spacing="5.0" HBox.hgrow="ALWAYS">
+                                <children>
+                                    <Label style="-fx-font-weight: bold; -fx-text-fill: #555;" text="Socket Number" />
+                           <TextField fx:id="socketTextField" editable="false" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="40.0" style="-fx-padding: 0 40 0 10; -fx-background-radius: 5;" text="8181" />
+                                </children>
+                            </VBox>
+                        </children>
+                  <VBox.margin>
+                     <Insets top="10.0" />
+                  </VBox.margin>
+                    </HBox>
                 </VBox>
 
                 <Region HBox.hgrow="ALWAYS" />
@@ -60,7 +81,7 @@
                                 </image>
                             </ImageView>
 
-
+      
                             <Label styleClass="button-text" text="Start Server" />
                         </HBox>
                     </graphic>
@@ -75,7 +96,7 @@
                                 </image>
                             </ImageView>
 
-
+      
                             <Label styleClass="button-text" text="Stop Server" />
                         </HBox>
                     </graphic>
@@ -91,11 +112,11 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <StackPane styleClass="usersIcon">
-                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image>
-                                <Image url="@../images/totalusers.png" />
-                            </image>
-                        </ImageView>
+                            <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/totalusers.png" />
+                                </image>
+                            </ImageView>
                         </StackPane>
             
 
@@ -111,11 +132,11 @@
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <StackPane styleClass="onlineIcon">
                             
-                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image>
-                                <Image url="@../images/onlineusers.png" />
-                            </image>
-                        </ImageView>
+                            <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/onlineusers.png" />
+                                </image>
+                            </ImageView>
                         </StackPane>
 
                         <Label styleClass="stat-title" text="ONLINE USERS" />
@@ -129,11 +150,11 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <StackPane styleClass="offlineIcon">
-                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image>
-                                <Image url="@../images/oflineusers.png" />
-                            </image>
-                        </ImageView>
+                            <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/oflineusers.png" />
+                                </image>
+                            </ImageView>
                         </StackPane>
 
                         <Label styleClass="stat-title" text="OFFLINE USERS" />
@@ -147,11 +168,11 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="10">
                         <StackPane styleClass="sessionsIcon">
-                        <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                            <image>
-                                <Image url="@../images/activesessions.png" />
-                            </image>
-                        </ImageView>
+                            <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
+                                <image>
+                                    <Image url="@../images/activesessions.png" />
+                                </image>
+                            </ImageView>
                         </StackPane>
 
                         <Label styleClass="stat-title" text="ACTIVE SESSIONS" />
