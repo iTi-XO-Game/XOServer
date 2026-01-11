@@ -4,11 +4,17 @@
  */
 package com.tornado.xoserver.server;
 
+import com.tornado.xoserver.database.GameHistoryDAO;
 import com.tornado.xoserver.models.StatusCode;
 import com.tornado.xoserver.models.AuthResponse;
 import com.tornado.xoserver.models.AuthRequest;
 import com.tornado.xoserver.database.PlayerDAO;
+import com.tornado.xoserver.models.GameHistory;
+import com.tornado.xoserver.models.GamesHistoryRequest;
+import com.tornado.xoserver.models.GamesHistoryResponse;
 import com.tornado.xoserver.models.Player;
+import java.util.ArrayList;
+
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -66,6 +72,9 @@ public class ResponseManager {
             case LEAVE_GAME -> {
                 //response = handleLeaveGame(requestJson);
             }
+            case PLAYER_GAMES_HISTORY -> {
+                response = gameHistoryHandling(requestJson);
+            }
         }
         return response;
     }
@@ -95,5 +104,17 @@ public class ResponseManager {
         else{
             return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "The User Name Already Exists"));
         }
+    }
+    
+    public static String gameHistoryHandling(String requestJson)
+    {
+        GamesHistoryRequest request = JsonUtils.fromJson(requestJson,GamesHistoryRequest.class);
+        GameHistoryDAO gameHistoryDao= new GameHistoryDAO();
+        ArrayList<GameHistory> data = gameHistoryDao.getPlayerGames(request.getClientID());
+        GamesHistoryResponse response = new GamesHistoryResponse(data);
+
+        String temp = JsonUtils.toJson(response);
+
+        return  temp;
     }
 }

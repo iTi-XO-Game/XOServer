@@ -19,11 +19,14 @@ public class PlayerDAO {
      public boolean createPlayer(String username, String password) {
         String sql = "INSERT INTO Player(username, password) VALUES (?, ?)";
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, username);
             ps.setString(2, password);
             ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+
             return true;
 
         } catch (SQLException e) {

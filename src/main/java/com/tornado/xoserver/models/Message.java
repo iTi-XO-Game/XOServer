@@ -2,9 +2,7 @@ package com.tornado.xoserver.models;
 
 public class Message
 {
-//    public String name;
-//    public int age;
-//    //ssssssssssssssssssssssssss
+
     private Header header;
     private Object data;
 
