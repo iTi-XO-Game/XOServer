@@ -61,7 +61,34 @@ public class PlayerDAO {
     }
 
 
-    public boolean updatePlayerStats(int winnerId, int loserId, boolean isDraw) {
+    public static Boolean updataPlayerPass(String username, String newPass)
+    {
+        try(Connection con = DBConnection.getConnection())
+        {
+            String sql = "Update player set password = ? where username = ?";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1,newPass);
+            ps.setString(2,username);
+
+            int rowsUpdated = ps.executeUpdate() ;
+
+            if (rowsUpdated == 1)
+                return true;
+            else if (rowsUpdated == 0)
+                return  false;
+            else {
+                throw new IllegalStateException("More than row updated!!!");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public boolean  updatePlayerStats(int winnerId, int loserId, boolean isDraw) {
         try (Connection con = DBConnection.getConnection()) {
 
             if (isDraw) {

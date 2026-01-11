@@ -4,12 +4,10 @@
  */
 package com.tornado.xoserver.server;
 
-import com.tornado.xoserver.database.GameHistoryDAO;
 import com.tornado.xoserver.models.*;
 import com.tornado.xoserver.database.PlayerDAO;
-
+import com.tornado.xoserver.database.GameHistoryDAO;
 import java.util.ArrayList;
-
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,6 +65,8 @@ public class ResponseManager {
             case LEAVE_GAME -> {
                 //response = handleLeaveGame(requestJson);
             }
+            case UPDATE_USER_PASS -> {
+                response = HandleForgotPass.handle(requestJson);
             case PLAYER_GAMES_HISTORY -> {
                 response = gameHistoryHandling(requestJson);
             }
