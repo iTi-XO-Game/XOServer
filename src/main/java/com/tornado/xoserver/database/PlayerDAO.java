@@ -6,8 +6,10 @@ package com.tornado.xoserver.database;
 
 import java.sql.Connection;
 import java.sql.*;
+
 import com.tornado.xoserver.models.Player;
 import com.tornado.xoserver.models.AuthRequest;
+import com.tornado.xoserver.models.PlayerWinsAndLoses;
 
 
 /**
@@ -128,6 +130,36 @@ public class PlayerDAO {
         }
         return null;
     }
+
+
+    public static PlayerWinsAndLoses getPlayerWinnsAndLoses(int playerId)
+    {
+        String sql = "select wins, losses from player where id = ?";
+
+        try(Connection con = DBConnection.getConnection())
+        {
+            PreparedStatement ps = con.prepareStatement(sql) ;
+            ps.setInt(1,playerId);
+
+            ResultSet resultSet = ps.executeQuery();
+
+            if (resultSet.next())
+            {
+                int wins = resultSet.getInt("wins");
+                int losses = resultSet.getInt("losses");
+
+                PlayerWinsAndLoses temp = new PlayerWinsAndLoses(wins,losses );
+
+                return temp;
+            }
+
+            return null;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }
 

@@ -5,14 +5,9 @@
 package com.tornado.xoserver.server;
 
 import com.tornado.xoserver.database.GameHistoryDAO;
-import com.tornado.xoserver.models.StatusCode;
-import com.tornado.xoserver.models.AuthResponse;
-import com.tornado.xoserver.models.AuthRequest;
+import com.tornado.xoserver.models.*;
 import com.tornado.xoserver.database.PlayerDAO;
-import com.tornado.xoserver.models.GameHistory;
-import com.tornado.xoserver.models.GamesHistoryRequest;
-import com.tornado.xoserver.models.GamesHistoryResponse;
-import com.tornado.xoserver.models.Player;
+
 import java.util.ArrayList;
 
 import java.util.Set;
@@ -109,9 +104,15 @@ public class ResponseManager {
     public static String gameHistoryHandling(String requestJson)
     {
         GamesHistoryRequest request = JsonUtils.fromJson(requestJson,GamesHistoryRequest.class);
+
         GameHistoryDAO gameHistoryDao= new GameHistoryDAO();
+
         ArrayList<GameHistory> data = gameHistoryDao.getPlayerGames(request.getClientID());
-        GamesHistoryResponse response = new GamesHistoryResponse(data);
+        PlayerWinsAndLoses playerWinsAndLoses = PlayerDAO.getPlayerWinnsAndLoses(request.getClientID());
+
+        GamesHistoryResponse response = new GamesHistoryResponse(data, playerWinsAndLoses);
+
+        System.out.println(response);
 
         String temp = JsonUtils.toJson(response);
 
