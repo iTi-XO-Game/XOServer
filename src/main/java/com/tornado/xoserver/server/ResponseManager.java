@@ -12,7 +12,10 @@ import com.tornado.xoserver.models.LogoutRequest;
 import com.tornado.xoserver.models.Player;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import com.tornado.xoserver.models.*;
+import com.tornado.xoserver.database.PlayerDAO;
+import com.tornado.xoserver.database.GameHistoryDAO;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,17 +54,15 @@ public class ResponseManager {
         return endPointString + "|" + callbackId + "|" + processRequest(requestJson, endPoint, client);
     }
 
-    private String processRequest(String requestJson, EndPoint endPoint, XOClient client) {
-
+    
+    private String processRequest(String requestJson, EndPoint endPoint) {
         String response = "";
         switch (endPoint) {
             case LOGIN -> {
-                //response = handleLogin(requestJson);
-                activeConnections.put(1, client);
-                notifyLobbyListeners(Player.getDummyPlayer(1), LobbyAction.ADD_ONE);
+                response = handleLogin(requestJson);
             }
             case REGISTER -> {
-                //response = handleRegister(requestJson);
+                response = handleRegister(requestJson);
             }
             case LOGOUT -> {
                 response = handleLogout(requestJson);
@@ -74,6 +75,12 @@ public class ResponseManager {
             }
             case GAME -> {
                 //todo
+            }
+            case UPDATE_USER_PASS -> {
+                response = handleForgetPassword(requestJson);
+            }
+            case PLAYER_GAMES_HISTORY -> {
+                response = gameHistoryHandling(requestJson);
             }
         }
         return response;
@@ -110,10 +117,7 @@ public class ResponseManager {
 
         switch (challenge.getAction()) {
             case LISTEN -> {
-                //todo add in login only
-                activeConnections.put(challenge.getSender().getId(), senderClient);
                 challengeListeners.add(challenge.getSender().getId());
-                onlinePlayers.put(challenge.getSender().getId(), challenge.getSender());
                 notifyLobbyListeners(challenge.getSender(), LobbyAction.ADD_ONE);
 
                 return request;
@@ -216,5 +220,67 @@ public class ResponseManager {
         notifyLobbyListeners(player, LobbyAction.REMOVE_ONE);
         
         return "";
+    }
+    // I know that this function may not be placed on the best place, but for now let's celebrate that it's actually working
+    private String handleLogin(String requestJson, XOClient client) {
+        AuthRequest loginRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
+      
+        PlayerDAO playerDao = new PlayerDAO();
+        Player p = playerDao.loginPlayer(loginRequest);
+      
+      
+        if (p == null) {
+            return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "No User Found"));
+        } else {
+            AuthResponse authResponse = new AuthResponse(StatusCode.SUCCESS, p.getId(), p.getUsername());
+          
+            onlinePlayers.put(p.getId(), p);
+            activeConnections.put(p.getId(), client);
+            notifyLobbyListeners(p.getId(), LobbyAction.ADD_ONE);
+          
+            return JsonUtils.toJson(authResponse);
+        }
+    }
+
+    private String handleRegister(String requestJson) {
+        AuthRequest registerRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
+
+        PlayerDAO playerDao = new PlayerDAO();
+        if (playerDao.createPlayer(registerRequest.getUsername(), registerRequest.getPassword())) {
+            return JsonUtils.toJson(new AuthResponse(StatusCode.SUCCESS));
+        } else {
+            return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "The User Name Already Exists"));
+        }
+    }
+
+    private static String gameHistoryHandling(String requestJson) {
+        GamesHistoryRequest request = JsonUtils.fromJson(requestJson, GamesHistoryRequest.class);
+
+        GameHistoryDAO gameHistoryDao = new GameHistoryDAO();
+
+        ArrayList<GameHistory> data = gameHistoryDao.getPlayerGames(request.getClientID());
+
+        GamesHistoryResponse response = new GamesHistoryResponse(data);
+
+        System.out.println(response);
+
+        String temp = JsonUtils.toJson(response);
+
+        return temp;
+    }
+
+    private String handleForgetPassword(String jsonRequest) {
+
+        AuthRequest request = JsonUtils.fromJson(jsonRequest, AuthRequest.class);
+
+        String username = request.getUsername();
+        String pass = request.getPassword();
+
+        Boolean resultOfUpdate = PlayerDAO.updataPlayerPass(username, pass);
+
+        String response = JsonUtils.toJson(resultOfUpdate);
+
+        return response;
+
     }
 }

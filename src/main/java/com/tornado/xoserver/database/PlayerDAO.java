@@ -6,7 +6,9 @@ package com.tornado.xoserver.database;
 
 import java.sql.Connection;
 import java.sql.*;
+
 import com.tornado.xoserver.models.Player;
+import com.tornado.xoserver.models.AuthRequest;
 
 
 /**
@@ -18,11 +20,14 @@ public class PlayerDAO {
      public boolean createPlayer(String username, String password) {
         String sql = "INSERT INTO Player(username, password) VALUES (?, ?)";
         try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+              PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, username);
             ps.setString(2, password);
             ps.executeUpdate();
+
+            ResultSet rs = ps.getGeneratedKeys();
+
             return true;
 
         } catch (SQLException e) {
@@ -42,7 +47,7 @@ public class PlayerDAO {
             if (rs.next()) {
                 Player p = new Player();
                 p.setId(rs.getInt("id"));
-                p.setUsername(rs.getString("username"));
+                p.setusername(rs.getString("username"));
                 p.setWins(rs.getInt("wins"));
                 p.setDraws(rs.getInt("draws"));
                 p.setLosses(rs.getInt("losses"));
@@ -56,7 +61,28 @@ public class PlayerDAO {
     }
 
 
-    public boolean updatePlayerStats(int winnerId, int loserId, boolean isDraw) {
+    public static Boolean updataPlayerPass(String username, String newPass)
+    {
+        try(Connection con = DBConnection.getConnection())
+        {
+            String sql = "Update player set password = ? where username = ?";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+
+            ps.setString(1,newPass);
+            ps.setString(2,username);
+
+            int rowsUpdated = ps.executeUpdate() ;
+
+            return rowsUpdated == 1;
+            
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+
+    public boolean  updatePlayerStats(int winnerId, int loserId, boolean isDraw) {
         try (Connection con = DBConnection.getConnection()) {
 
             if (isDraw) {
@@ -98,6 +124,31 @@ public class PlayerDAO {
             //e.printStackTrace();
             return false;
         }
+    }
+     public Player loginPlayer(AuthRequest loginRequest) {
+        String sql = "SELECT * FROM Player WHERE password=? AND username =?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, loginRequest.getPassword());
+            ps.setString(2, loginRequest.getUsername());
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Player p = new Player();
+                p.setId(rs.getInt("id"));
+                p.setusername(rs.getString("username"));
+                p.setWins(rs.getInt("wins"));
+                p.setDraws(rs.getInt("draws"));
+                p.setLosses(rs.getInt("losses"));
+                return p;
+            }
+
+        } catch (SQLException e) {
+            //e.printStackTrace();
+        }
+        return null;
     }
 }
 
