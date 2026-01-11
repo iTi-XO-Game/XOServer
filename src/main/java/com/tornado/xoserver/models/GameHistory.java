@@ -32,7 +32,7 @@ public class GameHistory {
         this.winnerId = winnerId;
         this.draw = draw;
 
-        this.gameDate = gameDate.atZone(ZoneOffset.UTC)
+        this.gameDate = gameDate.atZone(ZoneOffset.systemDefault())
                 .toInstant()
                 .toEpochMilli();
     }

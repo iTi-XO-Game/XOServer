@@ -153,17 +153,3 @@ public class GameHistoryDAO {
     }
 
 }
-
-
-/*
-//        LocalDateTime matchStart = LocalDateTime.of(2023, 10, 24, 14, 30, 0);
-//        LocalDateTime matchEnd = LocalDateTime.of(2023, 10, 24, 14, 34, 21);
-//        gameModels.add(new GameModel(1, 100, 200, 100, matchStart, matchEnd));
-//        gameModels.add(new GameModel(2, 100, 200, -1, matchStart, matchEnd));
-//        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
-//        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
-//        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
-//        gameModels.add(new GameModel(3, 100, 200, 200, matchStart, matchEnd));
-//
-//        return gameModels;
-* */

@@ -108,9 +108,8 @@ public class ResponseManager {
         GameHistoryDAO gameHistoryDao= new GameHistoryDAO();
 
         ArrayList<GameHistory> data = gameHistoryDao.getPlayerGames(request.getClientID());
-        PlayerWinsAndLoses playerWinsAndLoses = PlayerDAO.getPlayerWinnsAndLoses(request.getClientID());
 
-        GamesHistoryResponse response = new GamesHistoryResponse(data, playerWinsAndLoses);
+        GamesHistoryResponse response = new GamesHistoryResponse(data);
 
         System.out.println(response);
 

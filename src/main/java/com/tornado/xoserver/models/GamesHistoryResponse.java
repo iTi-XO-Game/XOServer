@@ -5,14 +5,12 @@ import java.util.List;
 public class GamesHistoryResponse
 {
     private List<GameHistory> gameModels;
-    private PlayerWinsAndLoses playerWinsAndLoses;
 
     public GamesHistoryResponse(){}
 
-    public GamesHistoryResponse(List<GameHistory> data, PlayerWinsAndLoses playerWinsAndLoses)
+    public GamesHistoryResponse(List<GameHistory> data)
     {
         gameModels = data;
-        this.playerWinsAndLoses = playerWinsAndLoses;
     }
 
     public List<GameHistory> getGameModels() {
@@ -22,13 +20,5 @@ public class GamesHistoryResponse
     public void setGameModels(List<GameHistory> data)
     {
         gameModels = data;
-    }
-
-    public PlayerWinsAndLoses getPlayerWinsAndLoses() {
-        return playerWinsAndLoses;
-    }
-
-    public void setPlayerWinsAndLoses(PlayerWinsAndLoses playerWinsAndLoses) {
-        this.playerWinsAndLoses = playerWinsAndLoses;
     }
 }
