@@ -14,7 +14,7 @@ public class LogIn {
     }
 
     // getters & setters
-    public String getusername() {
+    public String getUsername() {
         return username;
     }
 
