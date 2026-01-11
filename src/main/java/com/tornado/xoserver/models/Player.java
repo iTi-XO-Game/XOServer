@@ -45,7 +45,7 @@ public class Player {
         this.id = id;
     }
 
-    public void setUsername(String username) {
+    public void setusername(String username) {
         this.username = username;
     }
 

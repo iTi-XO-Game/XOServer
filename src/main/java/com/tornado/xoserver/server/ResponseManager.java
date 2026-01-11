@@ -4,6 +4,10 @@
  */
 package com.tornado.xoserver.server;
 
+import com.tornado.xoserver.models.StatusCode;
+import com.tornado.xoserver.models.AuthResponse;
+import com.tornado.xoserver.models.AuthRequest;
+import com.tornado.xoserver.database.PlayerDAO;
 import com.tornado.xoserver.models.Player;
 import com.tornado.xoserver.server.handling.GamesHistoryHandling;
 
@@ -24,7 +28,7 @@ public class ResponseManager {
 
     private ResponseManager() {
     }
-    
+
     private final Set<Player> onlinePlayers = ConcurrentHashMap.newKeySet();
 
     public String getResponse(String request) {
@@ -44,14 +48,13 @@ public class ResponseManager {
 
     // todo add parsing logic
     private String processRequest(String requestJson, EndPoint endPoint) {
-        
         String response = "";
         switch (endPoint) {
             case LOGIN -> {
-                //response = handleLogin(requestJson);
+                response = handleLogin(requestJson);
             }
             case REGISTER -> {
-                //response = handleRegister(requestJson);
+                response = handleRegister(requestJson);
             }
             case LOGOUT -> {
                 //response = handleLogout(requestJson);
@@ -68,10 +71,34 @@ public class ResponseManager {
             case PLAYER_GAMES_HISTORY -> {
                 response = GamesHistoryHandling.getGamesHistory(requestJson);
             }
-            case PLAYER_ID -> {
-                response = JsonUtils.toJson(XOClient.CLIENT_ID);
-            }
         }
         return response;
+    }
+
+    // I know that this function may not be placed on the best place, but for now let's celebrate that it's actually working
+    private String handleLogin(String requestJson) {
+        AuthRequest loginRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
+
+        PlayerDAO playerDao = new PlayerDAO();
+        Player p = playerDao.loginPlayer(loginRequest);
+        if (p == null) {
+            return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "No User Found"));
+        } else {
+            AuthResponse authResponse = new AuthResponse(StatusCode.SUCCESS, p.getId(), p.getUsername());
+             
+            return JsonUtils.toJson(authResponse);
+        }
+    }
+
+    private String handleRegister(String requestJson) {
+        AuthRequest registerRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
+
+        PlayerDAO playerDao = new PlayerDAO();
+        if(playerDao.createPlayer(registerRequest.getUsername(), registerRequest.getPassword())){
+            return JsonUtils.toJson(new AuthResponse(StatusCode.SUCCESS));
+        }
+        else{
+            return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "The User Name Already Exists"));
+        }
     }
 }

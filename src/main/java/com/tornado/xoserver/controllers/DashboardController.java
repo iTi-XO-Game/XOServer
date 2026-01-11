@@ -47,6 +47,7 @@ public class DashboardController implements Initializable {
         setupChart();
         loadLogs();
         setupStats();
+        ServerManager.getInstance().startServer(()->{});
     }
 
     private void setupChart() {

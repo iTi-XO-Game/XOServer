@@ -2,24 +2,24 @@ package com.tornado.xoserver.models;
 
 public class LogIn {
 
-    private String userName;
+    private String username;
     private String pass;
 
     public LogIn() {
     }
 
-    public LogIn(String userName, String pass) {
-        this.userName = userName;
+    public LogIn(String username, String pass) {
+        this.username = username;
         this.pass = pass;
     }
 
     // getters & setters
-    public String getUserName() {
-        return userName;
+    public String getusername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setusername(String username) {
+        this.username = username;
     }
 
     public String getPass() {
