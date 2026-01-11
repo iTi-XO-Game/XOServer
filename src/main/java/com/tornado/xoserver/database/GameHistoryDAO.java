@@ -2,10 +2,8 @@ package com.tornado.xoserver.database;
 
 
 import com.tornado.xoserver.models.GameHistory;
-import com.tornado.xoserver.models.GameModel;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,7 +112,7 @@ public class GameHistoryDAO {
         }
     }
 
-    public static ArrayList<GameHistory> getPlayerGames(int playerId) {
+    public ArrayList<GameHistory> getPlayerGames(int playerId) {
 
         ArrayList<GameHistory> gameHistories = new ArrayList<>();
 
