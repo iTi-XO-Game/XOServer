@@ -1,6 +1,5 @@
 package com.tornado.xoserver.models;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GamesHistoryResponse
