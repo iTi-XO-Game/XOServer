@@ -6,7 +6,7 @@ package com.tornado.xoserver;
 
 /**
  *
- * @author lenovo
+ * @author Hossam
  */
 public class Screen {
     

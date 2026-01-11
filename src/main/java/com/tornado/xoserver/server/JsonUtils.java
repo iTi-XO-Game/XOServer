@@ -5,14 +5,15 @@
 package com.tornado.xoserver.server;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  *
- * @author lenovo
+ * @author Hossam
  */
 public class JsonUtils {
     
-    private static final Gson gson = new Gson();
+    private static final Gson gson = new GsonBuilder().serializeNulls().create();
 
     public static <T> String toJson(T object) {
         return gson.toJson(object);

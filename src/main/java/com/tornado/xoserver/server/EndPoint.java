@@ -5,22 +5,21 @@ package com.tornado.xoserver.server;/*
 
 /**
  *
- * @author lenovo
+ * @author Hossam
  */
 public enum EndPoint {
 
     LOGIN("LOGIN"),
     REGISTER("REGISTER"),
     LOGOUT("LOGOUT"),
-
-    SEND_CHALLENGE("SEND_CHALLENGE"),
-    RECEIVE_CHALLENGE("RECEIVE_CHALLENGE"),
-    ONLINE_USERS("ONLINE_USERS"),
-    JOIN_GAME("JOIN_GAME"),
+    
+    LOBBY("LOBBY"),
+    CHALLENGE("CHALLENGE"),
+    GAME("GAME");
+  
     UPDATE_USER_PASS("UPDATE_USER_PASS"),
     PLAYER_GAMES_HISTORY("PLAYER_GAMES_HISTORY"),
-    LEAVE_GAME("LEAVE_GAME");
-
+    
     private final String code;
 
     private EndPoint(String code) {
