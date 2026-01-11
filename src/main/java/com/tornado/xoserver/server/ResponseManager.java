@@ -16,6 +16,7 @@ import com.tornado.xoserver.models.*;
 import com.tornado.xoserver.database.PlayerDAO;
 import com.tornado.xoserver.database.GameHistoryDAO;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -55,11 +56,11 @@ public class ResponseManager {
     }
 
     
-    private String processRequest(String requestJson, EndPoint endPoint) {
+    private String processRequest(String requestJson, EndPoint endPoint, XOClient client) {
         String response = "";
         switch (endPoint) {
             case LOGIN -> {
-                response = handleLogin(requestJson);
+                response = handleLogin(requestJson, client);
             }
             case REGISTER -> {
                 response = handleRegister(requestJson);
@@ -114,11 +115,14 @@ public class ResponseManager {
 
     private String handleChallenge(String request, XOClient senderClient) {
         Challenge challenge = JsonUtils.fromJson(request, Challenge.class);
-
+        
         switch (challenge.getAction()) {
             case LISTEN -> {
-                challengeListeners.add(challenge.getSender().getId());
-                notifyLobbyListeners(challenge.getSender(), LobbyAction.ADD_ONE);
+                Player sender = challenge.getSender();
+                activeConnections.put(sender.getId(), senderClient);
+                challengeListeners.add(sender.getId());
+                onlinePlayers.put(sender.getId(), sender);
+                notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
 
                 return request;
             }
@@ -161,8 +165,10 @@ public class ResponseManager {
     }
 
     private String getChallengeResponse(Challenge challenge, String request) {
+        
         int receiverId = challenge.getReceiver().getId();
         XOClient receiver = activeConnections.get(receiverId);
+        
         if (receiver != null) {
             boolean success = receiver.sendToListener(EndPoint.CHALLENGE, request);
             if (!success) {
@@ -210,15 +216,20 @@ public class ResponseManager {
     }
 
     private String handleLogout(String request) {
-        LogoutRequest logoutRequest = JsonUtils.fromJson(request, LogoutRequest.class);
+        int pid;
+        try {
+            pid = Integer.parseInt(request);
+        } catch (NumberFormatException e) {
+            return "";
+        }
 
-        Player player = logoutRequest.getPlayer();
-        activeConnections.remove(player.getId());
-        onlinePlayers.remove(player.getId());
-        challengeListeners.remove(player.getId());
-        lobbyListeners.remove(player.getId());
-        notifyLobbyListeners(player, LobbyAction.REMOVE_ONE);
-        
+        activeConnections.remove(pid);
+        challengeListeners.remove(pid);
+        lobbyListeners.remove(pid);
+        Player player = onlinePlayers.remove(pid);
+        if (player != null) {
+            notifyLobbyListeners(player, LobbyAction.REMOVE_ONE);
+        }
         return "";
     }
     // I know that this function may not be placed on the best place, but for now let's celebrate that it's actually working
@@ -234,9 +245,11 @@ public class ResponseManager {
         } else {
             AuthResponse authResponse = new AuthResponse(StatusCode.SUCCESS, p.getId(), p.getUsername());
           
+            authResponse.setPlayer(p);
             onlinePlayers.put(p.getId(), p);
             activeConnections.put(p.getId(), client);
-            notifyLobbyListeners(p.getId(), LobbyAction.ADD_ONE);
+            challengeListeners.add(p.getId());
+            notifyLobbyListeners(p, LobbyAction.ADD_ONE);
           
             return JsonUtils.toJson(authResponse);
         }
