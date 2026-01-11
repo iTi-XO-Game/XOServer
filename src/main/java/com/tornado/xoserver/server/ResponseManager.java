@@ -66,7 +66,8 @@ public class ResponseManager {
                 //response = handleLeaveGame(requestJson);
             }
             case UPDATE_USER_PASS -> {
-                response = HandleForgotPass.handle(requestJson);
+                response = handleForgetPassword(requestJson);
+            }
             case PLAYER_GAMES_HISTORY -> {
                 response = gameHistoryHandling(requestJson);
             }
@@ -84,7 +85,7 @@ public class ResponseManager {
             return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "No User Found"));
         } else {
             AuthResponse authResponse = new AuthResponse(StatusCode.SUCCESS, p.getId(), p.getUsername());
-             
+
             return JsonUtils.toJson(authResponse);
         }
     }
@@ -93,19 +94,17 @@ public class ResponseManager {
         AuthRequest registerRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
 
         PlayerDAO playerDao = new PlayerDAO();
-        if(playerDao.createPlayer(registerRequest.getUsername(), registerRequest.getPassword())){
+        if (playerDao.createPlayer(registerRequest.getUsername(), registerRequest.getPassword())) {
             return JsonUtils.toJson(new AuthResponse(StatusCode.SUCCESS));
-        }
-        else{
+        } else {
             return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "The User Name Already Exists"));
         }
     }
-    
-    public static String gameHistoryHandling(String requestJson)
-    {
-        GamesHistoryRequest request = JsonUtils.fromJson(requestJson,GamesHistoryRequest.class);
 
-        GameHistoryDAO gameHistoryDao= new GameHistoryDAO();
+    private static String gameHistoryHandling(String requestJson) {
+        GamesHistoryRequest request = JsonUtils.fromJson(requestJson, GamesHistoryRequest.class);
+
+        GameHistoryDAO gameHistoryDao = new GameHistoryDAO();
 
         ArrayList<GameHistory> data = gameHistoryDao.getPlayerGames(request.getClientID());
 
@@ -115,6 +114,21 @@ public class ResponseManager {
 
         String temp = JsonUtils.toJson(response);
 
-        return  temp;
+        return temp;
+    }
+
+    private String handleForgetPassword(String jsonRequest) {
+
+        AuthRequest request = JsonUtils.fromJson(jsonRequest, AuthRequest.class);
+
+        String username = request.getUsername();
+        String pass = request.getPassword();
+
+        Boolean resultOfUpdate = PlayerDAO.updataPlayerPass(username, pass);
+
+        String response = JsonUtils.toJson(resultOfUpdate);
+
+        return response;
+
     }
 }

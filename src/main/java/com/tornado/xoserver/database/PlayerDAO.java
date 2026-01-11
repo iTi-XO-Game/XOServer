@@ -74,16 +74,10 @@ public class PlayerDAO {
 
             int rowsUpdated = ps.executeUpdate() ;
 
-            if (rowsUpdated == 1)
-                return true;
-            else if (rowsUpdated == 0)
-                return  false;
-            else {
-                throw new IllegalStateException("More than row updated!!!");
-            }
-
+            return rowsUpdated == 1;
+            
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            return false;
         }
     }
 
