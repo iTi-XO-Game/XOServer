@@ -26,13 +26,15 @@ public class XOClient {
 
     public void connect(Socket socket) {
         try (
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));) {
             writer = new PrintWriter(socket.getOutputStream(), true);
             isConnected.set(true);
 
             String request;
             while ((request = reader.readLine()) != null) {
 
+                System.out.println("request");
+                System.out.println(request);
                 if (request.isBlank()) {
                     continue;
                 }
@@ -48,12 +50,14 @@ public class XOClient {
     }
 
     private boolean sendToClient(String response) {
+        System.out.println("response");
+        System.out.println(response);
         if (writer != null) {
             writer.println(response);
             return true;
         }
         return false;
-    }    
+    }
 
     /**
      * @return false means client is disconnected

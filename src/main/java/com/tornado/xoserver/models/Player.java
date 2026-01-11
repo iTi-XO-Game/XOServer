@@ -20,18 +20,13 @@ public class Player {
     
     public Player(){}
 
-    public Player(int id, String userName, int wins, int losses, int draws, boolean playing) {
+    public Player(int id, String username, int wins, int losses, int draws, boolean playing) {
         this.id = id;
-        this.username = userName;
+        this.username = username;
         this.wins = wins;
         this.losses = losses;
         this.playing = playing;
         this.draws = draws;
-    }
-
-    //todo delete when auth is done
-    public static Player getDummyPlayer(int id) {
-        return new Player(id,"hossam " + id,10,5,6,false);
     }
 
     public int getDraws() {

@@ -15,10 +15,10 @@ public enum EndPoint {
     
     LOBBY("LOBBY"),
     CHALLENGE("CHALLENGE"),
-    GAME("GAME");
+    GAME("GAME"),
   
     UPDATE_USER_PASS("UPDATE_USER_PASS"),
-    PLAYER_GAMES_HISTORY("PLAYER_GAMES_HISTORY"),
+    PLAYER_GAMES_HISTORY("PLAYER_GAMES_HISTORY");
     
     private final String code;
 

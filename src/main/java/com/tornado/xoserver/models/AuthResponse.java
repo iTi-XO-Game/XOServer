@@ -14,6 +14,8 @@ public class AuthResponse {
     private String errorMessage;
     private Integer id;
     private String username;
+    
+    private Player player;
 
     public StatusCode getStatusCode() {
         return statusCode;
@@ -27,15 +29,11 @@ public class AuthResponse {
         return errorMessage;
     }
 
-    public AuthResponse(StatusCode statusCode) {
-        this.statusCode = statusCode;
-    }
-
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -55,6 +53,10 @@ public class AuthResponse {
         this.statusCode = statusCode;
         this.errorMessage = errorMessage;
     }
+    
+    public AuthResponse(StatusCode statusCode) {
+        this.statusCode = statusCode;
+    }
 
     public AuthResponse() {
     }
@@ -63,6 +65,13 @@ public class AuthResponse {
         this.statusCode = statusCode;
         this.id = id;
         this.username = userName;
+    }
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
 }
