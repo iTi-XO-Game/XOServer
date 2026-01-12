@@ -6,6 +6,8 @@ package com.tornado.xoserver.controllers;
 
 import com.tornado.xoserver.App;
 import com.tornado.xoserver.Screen;
+import com.tornado.xoserver.database.PlayerDAO;
+import com.tornado.xoserver.models.Stats;
 import com.tornado.xoserver.server.ServerManager;
 import java.io.IOException;
 import javafx.fxml.*;
@@ -38,7 +40,7 @@ public class DashboardController implements Initializable {
     private Label serverStatusLabel;
     @FXML
     private Button startServerButton, stopServerButton;
-
+    List<String> allPlayers;
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupChart();
@@ -72,7 +74,11 @@ public class DashboardController implements Initializable {
     }
 
     private void setupStats() {
-        totalUsersLabel.setText("1240");
+        PlayerDAO playerDAO=new PlayerDAO();
+        allPlayers=playerDAO.getAllPlayersNames();
+        Stats.total.set(allPlayers.size());
+        totalUsersLabel.textProperty().bind(Stats.total.asString());
+        
         onlineUsersLabel.setText("42");
         offlineUsersLabel.setText("1198");
         activeSessionsLabel.setText("8");
@@ -98,7 +104,7 @@ public class DashboardController implements Initializable {
     }
 
     private List<String> getAllUsers() {
-        return List.of("Alice", "Bob", "John");
+        return allPlayers;
     }
 
     private List<String> getOnlineUsers() {
