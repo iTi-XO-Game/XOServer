@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javafx.application.Platform;
 
 /**
  *
@@ -260,6 +261,10 @@ public class ResponseManager {
 
         PlayerDAO playerDao = new PlayerDAO();
         if (playerDao.createPlayer(registerRequest.getUsername(), registerRequest.getPassword())) {
+            Platform.runLater(() -> {
+                Stats.total.set(Stats.total.get() + 1);
+                Stats.allPlayers.add(registerRequest.getUsername());
+            });
             return JsonUtils.toJson(new AuthResponse(StatusCode.SUCCESS));
         } else {
             return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "The User Name Already Exists"));

@@ -40,7 +40,7 @@ public class DashboardController implements Initializable {
     private Label serverStatusLabel;
     @FXML
     private Button startServerButton, stopServerButton;
-    List<String> allPlayers;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupChart();
@@ -75,8 +75,8 @@ public class DashboardController implements Initializable {
 
     private void setupStats() {
         PlayerDAO playerDAO=new PlayerDAO();
-        allPlayers=playerDAO.getAllPlayersNames();
-        Stats.total.set(allPlayers.size());
+        Stats.allPlayers=playerDAO.getAllPlayersNames();
+        Stats.total.set(Stats.allPlayers.size());
         totalUsersLabel.textProperty().bind(Stats.total.asString());
         
         onlineUsersLabel.setText("42");
@@ -104,7 +104,7 @@ public class DashboardController implements Initializable {
     }
 
     private List<String> getAllUsers() {
-        return allPlayers;
+        return Stats.allPlayers;
     }
 
     private List<String> getOnlineUsers() {

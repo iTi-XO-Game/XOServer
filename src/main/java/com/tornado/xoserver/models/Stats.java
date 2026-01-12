@@ -4,6 +4,8 @@
  */
 package com.tornado.xoserver.models;
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 
@@ -12,6 +14,7 @@ import javafx.beans.property.SimpleIntegerProperty;
  * @author Depogramming
  */
 public class Stats {
+    public static List<String> allPlayers = new ArrayList<String>();
     public static IntegerProperty total = new SimpleIntegerProperty();
     public IntegerProperty online = new SimpleIntegerProperty();
     public IntegerProperty offline = new SimpleIntegerProperty();
