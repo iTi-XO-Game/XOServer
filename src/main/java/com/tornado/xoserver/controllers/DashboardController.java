@@ -84,12 +84,15 @@ public class DashboardController implements Initializable {
             });
             
         }
-        Stats.total.set(Stats.allPlayers.size());
-        totalUsersLabel.textProperty().bind(Stats.total.asString());
-        
-        onlineUsersLabel.setText("42");
-        offlineUsersLabel.setText("1198");
-        activeSessionsLabel.setText("8");
+        else {
+            Stats.total.set(Stats.allPlayers.size());
+            totalUsersLabel.textProperty().bind(Stats.total.asString());
+
+            onlineUsersLabel.setText("42");
+            offlineUsersLabel.setText("1198");
+            activeSessionsLabel.setText("8");
+        }
+
     }
 
     private void openUsers(String title, List<String> users) {
@@ -107,7 +110,7 @@ public class DashboardController implements Initializable {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
         } catch (IOException ex) {
-            //ex.printStackTrace();
+            ex.printStackTrace();
         }
     }
 

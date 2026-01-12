@@ -1,24 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
 <?import java.net.URL?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.tornado.xoserver.controllers.UserListController"
-            >
+<BorderPane fx:id="root" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.tornado.xoserver.controllers.UserListController">
 
     <stylesheets>
-        <URL value="@../styles/dashboard.css" />
+        <URL value="@../styles/user-list.css" />
     </stylesheets>
-    <top>
-        <HBox styleClass="top-bar">
-            <Label fx:id="titleLabel" styleClass="section-title"/>
-        </HBox>
-    </top>
+    <!-- LEFT SIDE (Users List) -->
+    <left>
+        <VBox spacing="10" styleClass="sidebar">
+            <Label fx:id="titleLabel" styleClass="sidebar-title" />
 
+            <TextField fx:id="searchTextField" onKeyTyped="#onTextChange" promptText="Search users..." />
+         <ListView fx:id="usersList" styleClass="users-list" VBox.vgrow="ALWAYS" />
+        </VBox>
+    </left>
+
+    <!-- CENTER / RIGHT SIDE (User Details) -->
     <center>
-        <ListView fx:id="usersList"/>
+        <VBox spacing="20" styleClass="content">
+            <padding>
+                <Insets bottom="20" left="20" right="20" top="20" />
+            </padding>
+            <!-- User Header -->
+            <HBox alignment="CENTER_LEFT" spacing="15" styleClass="user-header">
+                <Label fx:id="selectedUserLabel" styleClass="username" text="Select a user" />
+            </HBox>
+
+            <!-- Stats Cards -->
+            <HBox spacing="20">
+
+                <VBox styleClass="stat-card">
+                    <Label styleClass="stat-title" text="Total Wins" />
+                    <Label fx:id="winsLabel" styleClass="stat-value" text="0" />
+                </VBox>
+
+                <VBox styleClass="stat-card">
+                    <Label styleClass="stat-title" text="Total Draws" />
+                    <Label fx:id="drawsLabel" styleClass="stat-value" text="0" />
+                </VBox>
+
+                <VBox styleClass="stat-card">
+                    <Label styleClass="stat-title" text="Total Losses" />
+                    <Label fx:id="lossesLabel" styleClass="stat-value" text="0" />
+                </VBox>
+
+            </HBox>
+         <VBox prefHeight="200.0" prefWidth="100.0" VBox.vgrow="ALWAYS">
+            <children>
+               <Label styleClass="section-title" text="Game History" />
+               <HBox prefWidth="200.0" styleClass="table-header">
+                  <children>
+                     <Label maxWidth="1.7976931348623157E308" styleClass="header-label" text="Result" HBox.hgrow="ALWAYS" />
+                     <Label maxWidth="1.7976931348623157E308" styleClass="header-label" text="Opponent" HBox.hgrow="ALWAYS" />
+                     <Label maxWidth="1.7976931348623157E308" styleClass="header-label" text="Date" HBox.hgrow="ALWAYS" />
+                  </children>
+               </HBox>
+               <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: white;" VBox.vgrow="ALWAYS">
+                  <content>
+                     <VBox fx:id="gameRowsContainer" spacing="1.0" style="-fx-background-color: white;" />
+                  </content>
+               </ScrollPane>
+            </children>
+         </VBox>
+
+        </VBox>
     </center>
 
 </BorderPane>
