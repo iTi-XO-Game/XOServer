@@ -123,6 +123,10 @@ public class ResponseManager {
                 activeConnections.put(sender.getId(), senderClient);
                 challengeListeners.add(sender.getId());
                 onlinePlayers.put(sender.getId(), sender);
+                Platform.runLater(()->{
+                    Stats.online.set(Stats.online.get() + 1);
+                    Stats.allOnlinePlayers.add(sender.getUsername());
+                });
                 notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
 
                 return request;
@@ -175,6 +179,10 @@ public class ResponseManager {
             if (!success) {
                 activeConnections.remove(receiverId);
                 onlinePlayers.remove(receiverId);
+                Platform.runLater(()->{
+                    Stats.online.set(Stats.online.get() - 1);
+//                    Stats.allOnlinePlayers.add(sender.getUsername());
+                });
                 challengeListeners.remove(receiverId);
                 Challenge response = new Challenge(
                         challenge.getId(),
@@ -228,6 +236,13 @@ public class ResponseManager {
         challengeListeners.remove(pid);
         lobbyListeners.remove(pid);
         Player player = onlinePlayers.remove(pid);
+
+        Platform.runLater(()->
+        {
+            Stats.allOnlinePlayers.remove(player.getUsername());
+            Stats.online.set(Stats.allOnlinePlayers.size());
+        });
+
         if (player != null) {
             notifyLobbyListeners(player, LobbyAction.REMOVE_ONE);
         }
@@ -299,6 +314,15 @@ public class ResponseManager {
         String response = JsonUtils.toJson(resultOfUpdate);
 
         return response;
+    }
 
+    public List<String> getOnlinePlayersName()
+    {
+        List<String> temp = new ArrayList<>();
+
+        for (Player val : onlinePlayers.values())
+            temp.add(val.getUsername());
+
+        return temp;
     }
 }
