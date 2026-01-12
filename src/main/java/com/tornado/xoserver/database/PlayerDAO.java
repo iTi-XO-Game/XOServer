@@ -62,6 +62,29 @@ public class PlayerDAO {
         return null;
     }
 
+        public Player getPlayerByUsername(String userName) {
+        String sql = "SELECT * FROM Player WHERE username=?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, userName);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Player p = new Player();
+                p.setId(rs.getInt("id"));
+                p.setusername(rs.getString("username"));
+                p.setWins(rs.getInt("wins"));
+                p.setDraws(rs.getInt("draws"));
+                p.setLosses(rs.getInt("losses"));
+                return p;
+            }
+
+        } catch (SQLException e) {
+            //e.printStackTrace();
+        }
+        return null;
+    }
 
     public static Boolean updataPlayerPass(String username, String newPass)
     {
