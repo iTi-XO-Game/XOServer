@@ -76,6 +76,14 @@ public class DashboardController implements Initializable {
     private void setupStats() {
         PlayerDAO playerDAO=new PlayerDAO();
         Stats.allPlayers=playerDAO.getAllPlayersNames();
+        if(Stats.allPlayers==null){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "افتح الداتا بيز يا عسل", ButtonType.OK);
+            alert.setHeaderText("احنا هنهزر");
+            alert.showAndWait().ifPresent((response) -> {
+                Platform.exit();
+            });
+            
+        }
         Stats.total.set(Stats.allPlayers.size());
         totalUsersLabel.textProperty().bind(Stats.total.asString());
         
