@@ -9,6 +9,8 @@ import java.sql.*;
 
 import com.tornado.xoserver.models.Player;
 import com.tornado.xoserver.models.AuthRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -125,7 +127,7 @@ public class PlayerDAO {
             return false;
         }
     }
-     public Player loginPlayer(AuthRequest loginRequest) {
+    public Player loginPlayer(AuthRequest loginRequest) {
         String sql = "SELECT * FROM Player WHERE password=? AND username =?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -145,6 +147,23 @@ public class PlayerDAO {
                 return p;
             }
 
+        } catch (SQLException e) {
+            //e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public List<String> getAllPlayersNames() {
+        String sql = "select username from player";
+        List<String> playersName = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                playersName.add(rs.getString("username"));
+            }
+            return playersName;
         } catch (SQLException e) {
             //e.printStackTrace();
         }
