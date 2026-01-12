@@ -20,6 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -78,6 +79,7 @@ public class DashboardController implements Initializable {
 
         getAllPlayers();
         getOnlinePlayers();
+        getOfflinePlayers();
 
         if(Stats.allPlayers==null || Stats.allOnlinePlayers == null){
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "افتح الداتا بيز يا عسل", ButtonType.OK);
@@ -95,7 +97,9 @@ public class DashboardController implements Initializable {
             Stats.online.set(Stats.allOnlinePlayers.size());
             onlineUsersLabel.textProperty().bind(Stats.online.asString());
 
-            offlineUsersLabel.setText("1198");
+            Stats.offline.set(Stats.allOfflinePlayers.size());
+            offlineUsersLabel.textProperty().bind(Stats.offline.asString());
+
             activeSessionsLabel.setText("80");
         }
 
@@ -111,6 +115,19 @@ public class DashboardController implements Initializable {
     {
         ResponseManager manager = ResponseManager.getInstance();
         Stats.allOnlinePlayers = manager.getOnlinePlayersName();
+    }
+
+    private void getOfflinePlayers()
+    {
+        List<String> temp = new ArrayList<>();
+
+        for (String val : Stats.allPlayers)
+        {
+            if (!Stats.allOnlinePlayers.contains(val))
+                temp.add(val);
+        }
+
+        Stats.allOfflinePlayers = temp;
     }
 
     private void openUsers(String title, List<String> users) {
@@ -141,7 +158,7 @@ public class DashboardController implements Initializable {
     }
 
     private List<String> getOfflineUsers() {
-        return List.of("Bob");
+        return Stats.allOfflinePlayers;
     }
 
     private void loadLogs() {
