@@ -92,6 +92,7 @@ public class UserListController {
         lossesLabel.setText(String.valueOf(player.getLosses()));
     }
 
+    
     public void displayGames() {
 
         gameRowsContainer.getChildren().clear();
@@ -111,7 +112,7 @@ public class UserListController {
         row.setPrefHeight(60);
         row.setPadding(new Insets(0, 20, 0, 20));
         row.setStyle("-fx-border-color: #F1F5F9; -fx-border-width: 0 0 1 0;");
-        // 1. Result Logic (The Container)
+        
         Label resultLabel = new Label();
         HBox resultContainer = new HBox(resultLabel);
         resultContainer.setAlignment(Pos.CENTER_LEFT);

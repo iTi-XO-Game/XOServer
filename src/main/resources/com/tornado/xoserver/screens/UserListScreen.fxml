@@ -15,7 +15,6 @@
     <stylesheets>
         <URL value="@../styles/user-list.css" />
     </stylesheets>
-    <!-- LEFT SIDE (Users List) -->
     <left>
         <VBox spacing="10" styleClass="sidebar">
             <Label fx:id="titleLabel" styleClass="sidebar-title" />
@@ -25,18 +24,15 @@
         </VBox>
     </left>
 
-    <!-- CENTER / RIGHT SIDE (User Details) -->
     <center>
         <VBox spacing="20" styleClass="content">
             <padding>
                 <Insets bottom="20" left="20" right="20" top="20" />
             </padding>
-            <!-- User Header -->
             <HBox alignment="CENTER_LEFT" spacing="15" styleClass="user-header">
                 <Label fx:id="selectedUserLabel" styleClass="username" text="Select a user" />
             </HBox>
 
-            <!-- Stats Cards -->
             <HBox spacing="20">
 
                 <VBox styleClass="stat-card">
