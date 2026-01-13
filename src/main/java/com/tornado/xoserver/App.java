@@ -1,6 +1,8 @@
 package com.tornado.xoserver;
 
+import com.tornado.xoserver.database.DBInitializer;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -34,8 +36,16 @@ public class App extends Application {
         return fxmlLoader.load();
     }
 
+    @Override
+    public void stop() throws Exception {
+        Platform.exit();
+        System.exit(0);
+        super.stop();
+    }
+
     public static void main(String[] args) {
+        DBInitializer.init();
         launch();
     }
 
-}
+    }
