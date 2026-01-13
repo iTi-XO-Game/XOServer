@@ -77,7 +77,7 @@ public class DashboardController implements Initializable {
         PlayerDAO playerDAO=new PlayerDAO();
         Stats.allPlayers=playerDAO.getAllPlayersNames();
         if(Stats.allPlayers==null){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION, "افتح الداتا بيز يا عسل", ButtonType.OK);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "انت ليه عايز تفتح سيرفرين في نفس الوقت؟\nاقفل السيرفر المفتوح و تعالى تاني", ButtonType.OK);
             alert.setHeaderText("احنا هنهزر");
             alert.showAndWait().ifPresent((response) -> {
                 Platform.exit();
