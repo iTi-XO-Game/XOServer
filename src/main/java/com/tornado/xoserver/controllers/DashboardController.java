@@ -49,7 +49,6 @@ public class DashboardController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         setupChart();
         addInitialChartPoint();
-        //loadLogs();
         setupStats();
         startOnlineUsersChartUpdater();
         ServerLog.setUiConsumer(log
@@ -154,14 +153,7 @@ public class DashboardController implements Initializable {
         return List.of("Bob");
     }
 
-//    private void loadLogs() {
-//        logsList.getItems().addAll(
-//                "INFO: Server started",
-//                "NET: Listening on port 8080",
-//                "GAME: Room created",
-//                "WARN: Packet loss detected"
-//        );
-//    }
+
 
     @FXML
     private void onStartClick(ActionEvent event) {

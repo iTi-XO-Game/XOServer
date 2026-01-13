@@ -74,7 +74,6 @@ public class ServerManager {
             }
 
         } catch (IOException ex) {
-            ServerLog.error("Server crashed: " + ex.getMessage());
             stopServer(() -> {
             });
         }

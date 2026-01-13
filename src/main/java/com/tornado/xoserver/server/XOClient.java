@@ -38,7 +38,6 @@ public class XOClient {
                 if (request.isBlank()) {
                     continue;
                 }
-                ServerLog.info("Request received: " + request);
                 String response = responseManager.getResponse(request.trim(), this);
 
                 sendToClient(response);
@@ -69,7 +68,6 @@ public class XOClient {
 
     private void disconnect(Socket socket) {
         isConnected.set(false);
-        ServerLog.warn("Client disconnected");
         if (writer != null) {
             writer.close();
         }
@@ -79,7 +77,6 @@ public class XOClient {
                 socket.close();
             }
         } catch (IOException ex) {
-            ServerLog.error("Error closing socket");
         }
     }
 
