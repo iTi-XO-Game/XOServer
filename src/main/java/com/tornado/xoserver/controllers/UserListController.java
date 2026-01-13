@@ -9,11 +9,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import java.util.List;
+import java.util.Map;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
@@ -42,16 +44,20 @@ public class UserListController {
 
     private List<String> allUsers;
     private List<String> searchUsers;
+    Map<Integer, String> opponentNames;
+    List<GameHistory> gameModels = new ArrayList<>();
 
     @FXML
     public void initialize() {
-        searchUsers= new ArrayList<>();
-        allUsers= new ArrayList<>();
+        searchUsers = new ArrayList<>();
+        allUsers = new ArrayList<>();
         usersList.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((obs, oldUser, newUser) -> {
                     if (newUser != null) {
                         loadPlayerStats(newUser);
+                        getOpponentsUserName();
+
                         displayGames();
                     }
                 });
@@ -61,19 +67,18 @@ public class UserListController {
     @FXML
     void onTextChange(KeyEvent event) {
         searchUsers.clear();
-        String textFieldText=searchTextField.getText();
+        String textFieldText = searchTextField.getText();
         if (textFieldText.isBlank()) {
             usersList.getItems().setAll(allUsers);
-        }
-        else{
+        } else {
             for (String user : allUsers) {
-                if(user.contains(textFieldText)){
+                if (user.contains(textFieldText)) {
                     searchUsers.add(user);
                 }
             }
             usersList.getItems().setAll(searchUsers);
         }
-        
+
     }
 
     public void setData(String title, List<String> users) {
@@ -92,7 +97,6 @@ public class UserListController {
         lossesLabel.setText(String.valueOf(player.getLosses()));
     }
 
-    
     public void displayGames() {
 
         gameRowsContainer.getChildren().clear();
@@ -112,7 +116,7 @@ public class UserListController {
         row.setPrefHeight(60);
         row.setPadding(new Insets(0, 20, 0, 20));
         row.setStyle("-fx-border-color: #F1F5F9; -fx-border-width: 0 0 1 0;");
-        
+
         Label resultLabel = new Label();
         HBox resultContainer = new HBox(resultLabel);
         resultContainer.setAlignment(Pos.CENTER_LEFT);
@@ -130,7 +134,8 @@ public class UserListController {
             setupStatusLabel(resultLabel, "Defeat", "#FEE2E2", "#EF4444");
         }
 
-        Label opponentLabel = new Label("Player " + (game.getPlayerXId() == id ? game.getPlayerOId() : game.getPlayerXId()));
+        int opponentId = game.getPlayerXId() == id ? game.getPlayerOId() : game.getPlayerXId();
+        Label opponentLabel = new Label(opponentNames.get(opponentId));
         long time = game.getGameDate();
         LocalDateTime dateTime = Instant
                 .ofEpochMilli(time)
@@ -150,6 +155,22 @@ public class UserListController {
         row.getChildren().addAll(resultContainer, opponentLabel, dateLabel);
 
         return row;
+    }
+
+    private void getOpponentsUserName() {
+        opponentNames = new HashMap<>();
+        opponentNames = playerDAO.getUsernames(getOpponentIds());
+    }
+
+    private List<Integer> getOpponentIds() {
+        List<Integer> temp = new ArrayList<>();
+        GameHistoryDAO gameHistoryDAO = new GameHistoryDAO();
+        gameModels = gameHistoryDAO.getPlayerGames(id);
+        for (GameHistory game : gameModels) {
+            int opponentId = game.getPlayerXId() == id ? game.getPlayerOId() : game.getPlayerXId();
+            temp.add(opponentId);
+        }
+        return temp;
     }
 
     private void setupStatusLabel(Label lbl, String text, String bg, String textFill) {

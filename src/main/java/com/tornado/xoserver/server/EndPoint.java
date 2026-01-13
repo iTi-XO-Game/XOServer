@@ -12,14 +12,15 @@ public enum EndPoint {
     LOGIN("LOGIN"),
     REGISTER("REGISTER"),
     LOGOUT("LOGOUT"),
-    
+
     LOBBY("LOBBY"),
     CHALLENGE("CHALLENGE"),
     GAME("GAME"),
-  
+    OPPONENT_NAMES("OPPONENT_NAMES"),
+
     UPDATE_USER_PASS("UPDATE_USER_PASS"),
     PLAYER_GAMES_HISTORY("PLAYER_GAMES_HISTORY");
-    
+
     private final String code;
 
     private EndPoint(String code) {

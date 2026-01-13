@@ -6,6 +6,9 @@ package com.tornado.xoserver.database;
 
 import java.sql.Connection;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.tornado.xoserver.models.Player;
 import com.tornado.xoserver.models.AuthRequest;
@@ -204,6 +207,46 @@ public Player getPlayerByUsername(String userName) {
         }
         return null;
     }
+ public static Map<Integer, String> getUsernames(List<Integer> usersIds) {
+
+        Map<Integer, String> temp = new HashMap<>();
+
+        if (usersIds == null || usersIds.isEmpty()) {
+            return temp;
+        }
+
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < usersIds.size(); i++) {
+            placeholders.append("?");
+            if (i < usersIds.size() - 1) {
+                placeholders.append(",");
+            }
+        }
+
+        String sql = "SELECT id, username FROM PLAYER WHERE id IN (" + placeholders + ")";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            for (int i = 0; i < usersIds.size(); i++) {
+                ps.setInt(i + 1, usersIds.get(i));
+            }
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String username = rs.getString("username");
+
+                temp.put(id, username);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return temp;
+    }
     
     public List<String> getAllPlayersNames() {
         String sql = "select username from player";
@@ -221,4 +264,5 @@ public Player getPlayerByUsername(String userName) {
         }
         return null;
     }
+    
 }

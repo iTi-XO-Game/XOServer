@@ -57,7 +57,7 @@ public class DashboardController implements Initializable {
     private TextField ipTextField;
     @FXML
     private TextField socketTextField;
-    
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupChart();
@@ -144,18 +144,17 @@ public class DashboardController implements Initializable {
 
     private void setupStats() {
         getAllPlayers();
-        getOnlinePlayers();
-        getOfflinePlayers();
-        if(Stats.allPlayers==null || Stats.allOnlinePlayers == null){
+
+        if (Stats.allPlayers == null) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "انت ليه عايز تفتح سيرفرين في نفس الوقت؟\nاقفل السيرفر المفتوح و تعالى تاني", ButtonType.OK);
             alert.setHeaderText("احنا هنهزر");
             alert.showAndWait().ifPresent((response) -> {
                 Platform.exit();
             });
-            
-        }
-        else {
 
+        } else {
+            getOnlinePlayers();
+            getOfflinePlayers();
             Stats.total.set(Stats.allPlayers.size());
             totalUsersLabel.textProperty().bind(Stats.total.asString());
 
@@ -170,26 +169,23 @@ public class DashboardController implements Initializable {
 
     }
 
-    private void getAllPlayers()
-    {
-        PlayerDAO playerDAO=new PlayerDAO();
-        Stats.allPlayers=playerDAO.getAllPlayersNames();
+    private void getAllPlayers() {
+        PlayerDAO playerDAO = new PlayerDAO();
+        Stats.allPlayers = playerDAO.getAllPlayersNames();
     }
 
-    private void getOnlinePlayers()
-    {
+    private void getOnlinePlayers() {
         ResponseManager manager = ResponseManager.getInstance();
         Stats.allOnlinePlayers = manager.getOnlinePlayersName();
     }
 
-    private void getOfflinePlayers()
-    {
+    private void getOfflinePlayers() {
         List<String> temp = new ArrayList<>();
 
-        for (String val : Stats.allPlayers)
-        {
-            if (!Stats.allOnlinePlayers.contains(val))
+        for (String val : Stats.allPlayers) {
+            if (!Stats.allOnlinePlayers.contains(val)) {
                 temp.add(val);
+            }
         }
 
         Stats.allOfflinePlayers = temp;
@@ -225,8 +221,6 @@ public class DashboardController implements Initializable {
     private List<String> getOfflineUsers() {
         return Stats.allOfflinePlayers;
     }
-
-
 
     @FXML
     private void onStartClick(ActionEvent event) {
