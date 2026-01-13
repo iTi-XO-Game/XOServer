@@ -6,6 +6,8 @@ package com.tornado.xoserver.controllers;
 
 import com.tornado.xoserver.App;
 import com.tornado.xoserver.Screen;
+import com.tornado.xoserver.database.PlayerDAO;
+import com.tornado.xoserver.models.Stats;
 import com.tornado.xoserver.server.ServerManager;
 import java.io.IOException;
 import javafx.fxml.*;
@@ -96,10 +98,25 @@ public class DashboardController implements Initializable {
     }
 
     private void setupStats() {
-        totalUsersLabel.setText("1240");
-        onlineUsersLabel.setText("42");
-        offlineUsersLabel.setText("1198");
-        activeSessionsLabel.setText("8");
+        PlayerDAO playerDAO=new PlayerDAO();
+        Stats.allPlayers=playerDAO.getAllPlayersNames();
+        if(Stats.allPlayers==null){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "انت ليه عايز تفتح سيرفرين في نفس الوقت؟\nاقفل السيرفر المفتوح و تعالى تاني", ButtonType.OK);
+            alert.setHeaderText("احنا هنهزر");
+            alert.showAndWait().ifPresent((response) -> {
+                Platform.exit();
+            });
+            
+        }
+        else {
+            Stats.total.set(Stats.allPlayers.size());
+            totalUsersLabel.textProperty().bind(Stats.total.asString());
+
+            onlineUsersLabel.setText("42");
+            offlineUsersLabel.setText("1198");
+            activeSessionsLabel.setText("8");
+        }
+
     }
 
     private void openUsers(String title, List<String> users) {
@@ -117,12 +134,12 @@ public class DashboardController implements Initializable {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
         } catch (IOException ex) {
-            //ex.printStackTrace();
+            ex.printStackTrace();
         }
     }
 
     private List<String> getAllUsers() {
-        return List.of("Alice", "Bob", "John");
+        return Stats.allPlayers;
     }
 
     private List<String> getOnlineUsers() {
