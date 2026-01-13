@@ -8,13 +8,16 @@ import com.tornado.xoserver.models.Challenge;
 import com.tornado.xoserver.models.Challenge.ChallengeAction;
 import com.tornado.xoserver.models.LobbyData;
 import com.tornado.xoserver.models.LobbyData.LobbyAction;
-import com.tornado.xoserver.models.LogoutRequest;
 import com.tornado.xoserver.models.Player;
+
 import java.util.List;
 import java.util.Map;
+
 import com.tornado.xoserver.models.*;
 import com.tornado.xoserver.database.PlayerDAO;
 import com.tornado.xoserver.database.GameHistoryDAO;
+import com.tornado.xoserver.models.ActiveGame.GameAction;
+
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Set;
@@ -32,6 +35,10 @@ public class ResponseManager {
     private final Map<Integer, Player> onlinePlayers = new ConcurrentHashMap<>();
     private final Set<Integer> challengeListeners = ConcurrentHashMap.newKeySet();
     private final Set<Integer> lobbyListeners = ConcurrentHashMap.newKeySet();
+
+    private final Map<String, ActiveGame> activeGames = new ConcurrentHashMap<>();
+    private final Map<Integer, String> playersInGames = new ConcurrentHashMap<>();
+    private final Set<Integer> gameListeners = ConcurrentHashMap.newKeySet();
 
     public static ResponseManager getInstance() {
         return INSTANCE;
@@ -55,7 +62,6 @@ public class ResponseManager {
         return endPointString + "|" + callbackId + "|" + processRequest(requestJson, endPoint, client);
     }
 
-    
     private String processRequest(String requestJson, EndPoint endPoint, XOClient client) {
         String response = "";
         switch (endPoint) {
@@ -75,7 +81,7 @@ public class ResponseManager {
                 response = handleChallenge(requestJson, client);
             }
             case GAME -> {
-                //todo
+                response = handleGame(requestJson, client);
             }
             case UPDATE_USER_PASS -> {
                 response = handleForgetPassword(requestJson);
@@ -85,6 +91,153 @@ public class ResponseManager {
             }
         }
         return response;
+    }
+
+    private String handleGame(String request, XOClient senderClient) {
+        ActiveGame activeGame = JsonUtils.fromJson(request, ActiveGame.class);
+
+        switch (activeGame.getAction()) {
+            case GameAction.LISTEN -> {
+                playersInGames.put(activeGame.getSender().getId(), activeGame.getId());
+                return startGame(activeGame);
+            }
+            case GameAction.STOP_LISTEN -> {
+
+                playersInGames.remove(activeGame.getSender().getId());
+                resetGamePlayerInLobby(activeGame.getSender());
+                gameListeners.remove(activeGame.getSender().getId());
+                gameListeners.remove(activeGame.getSender().getId());
+
+                activeGame.getSender().setPlaying(false);
+                onlinePlayers.put(activeGame.getSender().getId(), activeGame.getSender());
+                notifyLobbyListeners(activeGame.getSender(), LobbyAction.ADD_ONE);
+
+                if (activeGame.getIsGameOn()) {
+                    activeGame.setAction(GameAction.GIVE_UP);
+                    activeGame.setIsGameOn(false);
+                }
+
+                return forwardGame(activeGame);
+            }
+            case GameAction.START -> {
+                startGame(activeGame);
+            }
+            case GameAction.RESTART -> {
+                activeGame.reset();
+                return forwardGame(activeGame);
+            }
+            case GameAction.GIVE_UP -> {
+                saveGameToDatabase(activeGame, activeGame.getReceiver().getId());
+
+                activeGame.getSender().setPlaying(false);
+                onlinePlayers.put(activeGame.getSender().getId(), activeGame.getSender());
+                notifyLobbyListeners(activeGame.getSender(), LobbyAction.ADD_ONE);
+
+                activeGame.setErrorMessage("Opponent disconnected. You win!");
+                return forwardGame(activeGame);
+            }
+            case GameAction.MOVE -> {
+                if (!activeGame.getIsGameOn()) {
+                    saveGameToDatabase(activeGame, activeGame.getWinnerId());
+                }
+                return forwardGame(activeGame);
+            }
+        }
+
+        return "";
+    }
+
+    private String forwardGame(ActiveGame activeGame) {
+
+        XOClient client = activeConnections.get(activeGame.getReceiver().getId());
+
+        String response = JsonUtils.toJson(activeGame);
+
+        boolean success = client.sendToListener(EndPoint.GAME, response);
+
+        if (success || !activeGame.getIsGameOn()) {
+            return "";
+        }
+
+        activeGame.setIsGameOn(false);
+        ActiveGame errorGame = new ActiveGame(
+                activeGame.getId(),
+                GameAction.ERROR,
+                activeGame.getReceiver(),
+                activeGame.getSender(),
+                activeGame.getSender().getUsername() + " has disconnected, so you win this one."
+        );
+
+        saveGameToDatabase(activeGame, activeGame.getSender().getId());
+
+        response = JsonUtils.toJson(errorGame);
+
+        return response;
+    }
+
+    private void saveGameToDatabase(ActiveGame activeGame, int winnerId) {
+        GameHistoryDAO gameHistoryDAO = new GameHistoryDAO();
+        PlayerDAO playerDAO = new PlayerDAO();
+
+        Integer winner = winnerId;
+        if (winner == -1) {
+            playerDAO.incrementDraws(activeGame.getPlayerXid());
+            playerDAO.incrementDraws(activeGame.getPlayerOid());
+            winner = null;
+        } else {
+
+            playerDAO.incrementWins(winnerId);
+            int loserId;
+            if (winnerId == activeGame.getPlayerXid()) {
+                loserId = activeGame.getPlayerOid();
+            } else {
+                loserId = activeGame.getPlayerXid();
+            }
+            playerDAO.incrementLosses(loserId);
+        }
+
+        GameHistory game = new GameHistory(
+                activeGame.getPlayerXid(),
+                activeGame.getPlayerOid(),
+                winner,
+                winnerId == -1,
+                activeGame.getGameDate()
+        );
+
+        gameHistoryDAO.saveGame(game);
+
+    }
+
+    private String startGame(ActiveGame game) {
+
+        ActiveGame activeGame = activeGames.get(game.getId());
+        game.setPlayerXid(game.getSender().getId());
+        game.setPlayerOid(game.getReceiver().getId());
+        game.setGameDate(System.currentTimeMillis());
+        activeGame.setIsGameOn(true);
+
+        String request = JsonUtils.toJson(activeGame);
+
+        XOClient clientX = activeConnections.get(activeGame.getPlayerXid());
+
+        clientX.sendToListener(EndPoint.GAME, request);
+
+        XOClient clientO = activeConnections.get(activeGame.getPlayerOid());
+
+        clientO.sendToListener(EndPoint.GAME, request);
+
+        return request;
+    }
+
+    private void resetGamePlayerInLobby(Player sender) {
+        sender.setPlaying(false);
+        onlinePlayers.put(sender.getId(), sender);
+
+        if (onlinePlayers.containsKey(sender.getId())) {
+            notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
+        } else {
+            notifyLobbyListeners(sender, LobbyAction.REMOVE_ONE);
+        }
     }
 
     private String handleLobby(String request) {
@@ -115,7 +268,7 @@ public class ResponseManager {
 
     private String handleChallenge(String request, XOClient senderClient) {
         Challenge challenge = JsonUtils.fromJson(request, Challenge.class);
-        
+
         switch (challenge.getAction()) {
             case LISTEN -> {
                 Player sender = challenge.getSender();
@@ -146,6 +299,21 @@ public class ResponseManager {
             case ACCEPT -> {
                 String response = getChallengeResponse(challenge, request);
                 if (response.isBlank()) {
+
+                    ActiveGame game = challenge.toActiveGame();
+                    activeGames.put(challenge.getId(), game);
+
+                    Player sender = challenge.getSender();
+                    sender.setPlaying(true);
+                    onlinePlayers.put(sender.getId(), sender);
+
+                    Player receiver = challenge.getReceiver();
+                    receiver.setPlaying(true);
+                    onlinePlayers.put(receiver.getId(), receiver);
+
+                    notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
+                    notifyLobbyListeners(receiver, LobbyAction.ADD_ONE);
+
                     Challenge chall = new Challenge(
                             challenge.getId(),
                             ChallengeAction.DONE,
@@ -165,10 +333,10 @@ public class ResponseManager {
     }
 
     private String getChallengeResponse(Challenge challenge, String request) {
-        
+
         int receiverId = challenge.getReceiver().getId();
         XOClient receiver = activeConnections.get(receiverId);
-        
+
         if (receiver != null) {
             boolean success = receiver.sendToListener(EndPoint.CHALLENGE, request);
             if (!success) {
@@ -230,27 +398,57 @@ public class ResponseManager {
         if (player != null) {
             notifyLobbyListeners(player, LobbyAction.REMOVE_ONE);
         }
+        String gameId = playersInGames.get(pid);
+        if (gameId != null) {
+            ActiveGame game = activeGames.get(gameId);
+            if (game != null) {
+                int rivalId = game.getPlayerXid() == pid ? game.getPlayerOid() : game.getPlayerXid();
+                if (game.getIsGameOn()) {
+                    saveGameToDatabase(game, rivalId);
+                    game.setAction(GameAction.GIVE_UP);
+                    game.setWinnerId(rivalId);
+                    game.setIsGameOn(false);
+                    game.setErrorMessage("Opponent disconnected. You win!");
+                } else {
+                    game.setAction(GameAction.STOP_LISTEN);
+                    game.setErrorMessage("Opponent disconnected.");
+                    XOClient clientX = activeConnections.get(rivalId);
+                    if (clientX != null) {
+                        String response = JsonUtils.toJson(game);
+                        clientX.sendToListener(EndPoint.GAME, response);
+                    }
+                }
+                activeGames.remove(gameId);
+                playersInGames.remove(pid);
+                playersInGames.remove(rivalId);
+                XOClient clientX = activeConnections.get(rivalId);
+                if (clientX != null) {
+                    String response = JsonUtils.toJson(game);
+                    clientX.sendToListener(EndPoint.GAME, response);
+                }
+            }
+        }
         return "";
     }
+
     // I know that this function may not be placed on the best place, but for now let's celebrate that it's actually working
     private String handleLogin(String requestJson, XOClient client) {
         AuthRequest loginRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
-      
+
         PlayerDAO playerDao = new PlayerDAO();
         Player p = playerDao.loginPlayer(loginRequest);
-      
-      
+
         if (p == null) {
             return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "No User Found"));
         } else {
             AuthResponse authResponse = new AuthResponse(StatusCode.SUCCESS, p.getId(), p.getUsername());
-          
+
             authResponse.setPlayer(p);
             onlinePlayers.put(p.getId(), p);
             activeConnections.put(p.getId(), client);
             challengeListeners.add(p.getId());
             notifyLobbyListeners(p, LobbyAction.ADD_ONE);
-          
+
             return JsonUtils.toJson(authResponse);
         }
     }
