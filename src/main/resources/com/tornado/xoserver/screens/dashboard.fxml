@@ -56,7 +56,7 @@
 
                             <VBox maxWidth="1.7976931348623157E308" spacing="5.0" HBox.hgrow="ALWAYS">
                                 <children>
-                                    <Label style="-fx-font-weight: bold; -fx-text-fill: #555;" text="Socket Number" />
+                                    <Label style="-fx-font-weight: bold; -fx-text-fill: #555;" text="Port Number" />
                            <TextField fx:id="socketTextField" editable="false" maxWidth="1.7976931348623157E308" minHeight="-Infinity" prefHeight="40.0" style="-fx-padding: 0 40 0 10; -fx-background-radius: 5;" text="8181" />
                                 </children>
                             </VBox>

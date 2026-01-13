@@ -55,8 +55,7 @@ public class DashboardController implements Initializable {
         setupStats();
         ServerManager.getInstance().startServer(() -> {
         });
-        //currently it's fixed to that value maybe in the future we may make a function from server manager to get it...
-        
+
         socketTextField.setText("8181");
         Platform.runLater(() -> rootPane.requestFocus());
         try {
