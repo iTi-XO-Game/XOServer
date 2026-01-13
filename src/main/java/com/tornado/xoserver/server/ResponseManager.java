@@ -516,7 +516,6 @@ public class ResponseManager {
 
         GamesHistoryResponse response = new GamesHistoryResponse(data);
 
-        System.out.println(response);
 
         String temp = JsonUtils.toJson(response);
 

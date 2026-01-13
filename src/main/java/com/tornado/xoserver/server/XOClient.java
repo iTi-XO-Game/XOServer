@@ -33,8 +33,6 @@ public class XOClient {
             String request;
             while ((request = reader.readLine()) != null) {
 
-                System.out.println("request");
-                System.out.println(request);
                 if (request.isBlank()) {
                     continue;
                 }
@@ -50,8 +48,6 @@ public class XOClient {
     }
 
     private boolean sendToClient(String response) {
-        System.out.println("response");
-        System.out.println(response);
         if (writer != null) {
             writer.println(response);
             return true;

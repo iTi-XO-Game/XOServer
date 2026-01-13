@@ -28,7 +28,6 @@ public class DBInitializer {
         try (Connection con = DBConnection.getConnection(); Statement stmt = con.createStatement()) {
 
             if (!tableExists(con, "PLAYER")) {
-                System.out.println("First run detected. Creating tables and inserting initial data...");
 
                 stmt.executeUpdate(
                         "CREATE TABLE Player ("

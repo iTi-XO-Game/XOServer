@@ -42,9 +42,9 @@ public class DashboardController implements Initializable {
     @FXML
     private BorderPane rootPane;
     @FXML
-    private VBox totalUsersCard, onlineUsersCard, offlineUsersCard, activeSessionsCard;
+    private VBox totalUsersCard, onlineUsersCard, offlineUsersCard;
     @FXML
-    private Label totalUsersLabel, onlineUsersLabel, offlineUsersLabel, activeSessionsLabel;
+    private Label totalUsersLabel, onlineUsersLabel, offlineUsersLabel;
     @FXML
     private Label serverStatusLabel;
     @FXML
@@ -163,8 +163,6 @@ public class DashboardController implements Initializable {
 
             Stats.offline.set(Stats.allOfflinePlayers.size());
             offlineUsersLabel.textProperty().bind(Stats.offline.asString());
-
-            activeSessionsLabel.setText("80");
         }
 
     }
@@ -258,10 +256,6 @@ public class DashboardController implements Initializable {
     @FXML
     private void onOfflineUsersClick(MouseEvent event) {
         openUsers("Offline Users", getOfflineUsers());
-    }
-
-    @FXML
-    private void onActiveSessionsClick(MouseEvent event) {
     }
 
 }
