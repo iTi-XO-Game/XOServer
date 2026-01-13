@@ -8,7 +8,6 @@ import com.tornado.xoserver.models.Challenge;
 import com.tornado.xoserver.models.Challenge.ChallengeAction;
 import com.tornado.xoserver.models.LobbyData;
 import com.tornado.xoserver.models.LobbyData.LobbyAction;
-import com.tornado.xoserver.models.LogoutRequest;
 import com.tornado.xoserver.models.Player;
 import java.util.List;
 import java.util.Map;
@@ -83,8 +82,24 @@ public class ResponseManager {
             case PLAYER_GAMES_HISTORY -> {
                 response = gameHistoryHandling(requestJson);
             }
+            case OPPONENT_NAMES -> {
+                response = getOpponentNamesHandling(requestJson);
+            }
         }
         return response;
+    }
+
+    private String getOpponentNamesHandling(String request)
+    {
+        OpponentNamesRequest req = JsonUtils.fromJson(request,OpponentNamesRequest.class);
+
+        List<Integer> opponentIds = req.getOpponentsIds();
+
+        Map<Integer, String> usersMap = PlayerDAO.getUsernames(opponentIds);
+
+        OpponentNamesResponse res = new OpponentNamesResponse(usersMap);
+
+        return JsonUtils.toJson(res);
     }
 
     private String handleLobby(String request) {
