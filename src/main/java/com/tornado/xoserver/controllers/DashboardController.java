@@ -7,6 +7,8 @@ package com.tornado.xoserver.controllers;
 import com.tornado.xoserver.App;
 import com.tornado.xoserver.Screen;
 import com.tornado.xoserver.server.ServerLog;
+import com.tornado.xoserver.database.PlayerDAO;
+import com.tornado.xoserver.models.Stats;
 import com.tornado.xoserver.server.ServerManager;
 import java.io.IOException;
 import javafx.fxml.*;
@@ -25,6 +27,9 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import javafx.scene.layout.BorderPane;
 
 public class DashboardController implements Initializable {
 
@@ -32,7 +37,8 @@ public class DashboardController implements Initializable {
     private VBox chartContainer;
     @FXML
     private ListView<String> logsList;
-
+    @FXML
+    private BorderPane rootPane;
     @FXML
     private VBox totalUsersCard, onlineUsersCard, offlineUsersCard, activeSessionsCard;
     @FXML
@@ -45,6 +51,11 @@ public class DashboardController implements Initializable {
     private XYChart.Series<Number, Number> onlineUsersSeries;
     private int minuteCounter = 0;
 
+    @FXML
+    private TextField ipTextField;
+    @FXML
+    private TextField socketTextField;
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupChart();
@@ -64,6 +75,20 @@ public class DashboardController implements Initializable {
 
         ServerManager.getInstance().startServer(() -> {
         });
+
+        socketTextField.setText("8181");
+        Platform.runLater(() -> rootPane.requestFocus());
+        try {
+
+            InetAddress localhost = InetAddress.getLocalHost();
+            String ip = localhost.getHostAddress();
+
+            ipTextField.setText(ip);
+
+        } catch (UnknownHostException e) {
+            ipTextField.setText("127.0.0.1"); // the default...
+            e.printStackTrace();
+        }
     }
 
     private void setupChart() {
@@ -116,10 +141,25 @@ public class DashboardController implements Initializable {
     }
 
     private void setupStats() {
-        totalUsersLabel.setText("1240");
-        onlineUsersLabel.setText("42");
-        offlineUsersLabel.setText("1198");
-        activeSessionsLabel.setText("8");
+        PlayerDAO playerDAO=new PlayerDAO();
+        Stats.allPlayers=playerDAO.getAllPlayersNames();
+        if(Stats.allPlayers==null){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION, "انت ليه عايز تفتح سيرفرين في نفس الوقت؟\nاقفل السيرفر المفتوح و تعالى تاني", ButtonType.OK);
+            alert.setHeaderText("احنا هنهزر");
+            alert.showAndWait().ifPresent((response) -> {
+                Platform.exit();
+            });
+            
+        }
+        else {
+            Stats.total.set(Stats.allPlayers.size());
+            totalUsersLabel.textProperty().bind(Stats.total.asString());
+
+            onlineUsersLabel.setText("42");
+            offlineUsersLabel.setText("1198");
+            activeSessionsLabel.setText("8");
+        }
+
     }
 
     private void openUsers(String title, List<String> users) {
@@ -137,12 +177,12 @@ public class DashboardController implements Initializable {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
         } catch (IOException ex) {
-            //ex.printStackTrace();
+            ex.printStackTrace();
         }
     }
 
     private List<String> getAllUsers() {
-        return List.of("Alice", "Bob", "John");
+        return Stats.allPlayers;
     }
 
     private List<String> getOnlineUsers() {

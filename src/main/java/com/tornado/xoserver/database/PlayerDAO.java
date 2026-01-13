@@ -9,6 +9,8 @@ import java.sql.*;
 
 import com.tornado.xoserver.models.Player;
 import com.tornado.xoserver.models.AuthRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -57,6 +59,29 @@ public class PlayerDAO {
         return null;
     }
 
+public Player getPlayerByUsername(String userName) {
+        String sql = "SELECT * FROM Player WHERE username=?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, userName);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Player p = new Player();
+                p.setId(rs.getInt("id"));
+                p.setusername(rs.getString("username"));
+                p.setWins(rs.getInt("wins"));
+                p.setDraws(rs.getInt("draws"));
+                p.setLosses(rs.getInt("losses"));
+                return p;
+            }
+
+        } catch (SQLException e) {
+            //e.printStackTrace();
+        }
+        return null;
+    }
     public Player incrementWins(int id) {
         String sql = "UPDATA Player SET wins = wins + 1 WHERE id = ?";
         try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -76,7 +101,6 @@ public class PlayerDAO {
 
             ps.setInt(1, id);
             ps.executeQuery();
-
         } catch (SQLException e) {
             //e.printStackTrace();
         }
@@ -175,6 +199,23 @@ public class PlayerDAO {
                 return p;
             }
 
+        } catch (SQLException e) {
+            //e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public List<String> getAllPlayersNames() {
+        String sql = "select username from player";
+        List<String> playersName = new ArrayList<>();
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                playersName.add(rs.getString("username"));
+            }
+            return playersName;
         } catch (SQLException e) {
             //e.printStackTrace();
         }

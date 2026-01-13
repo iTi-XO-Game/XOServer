@@ -13,13 +13,14 @@ import java.sql.SQLException;
  */
 public class DBConnection {
     
-     private static final String URL =
-        "jdbc:derby://localhost:1527/XOdatabase";
-    private static final String USER = "root";
-    private static final String PASS = "root";
+         private static final String DB_PATH
+            = System.getProperty("user.home") + "/XOdatabase";
+
+    private static final String URL
+            = "jdbc:derby:" + DB_PATH + ";create=true";
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASS);
+        return DriverManager.getConnection(URL);
     }
     
 }
