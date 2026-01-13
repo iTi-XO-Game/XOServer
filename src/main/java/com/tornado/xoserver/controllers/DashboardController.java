@@ -195,18 +195,6 @@ public class DashboardController implements Initializable {
         Stats.allOfflinePlayers = temp;
     }
 
-    private void getAllPlayers()
-    {
-        PlayerDAO playerDAO=new PlayerDAO();
-        Stats.allPlayers=playerDAO.getAllPlayersNames();
-    }
-
-    private void getOnlinePlayers()
-    {
-        ResponseManager manager = ResponseManager.getInstance();
-        Stats.allOnlinePlayers = manager.getOnlinePlayersName();
-    }
-
     private void openUsers(String title, List<String> users) {
         try {
             FXMLLoader loader = new FXMLLoader(
