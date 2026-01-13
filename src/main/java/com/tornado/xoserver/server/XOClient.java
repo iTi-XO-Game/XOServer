@@ -13,54 +13,73 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
- * @author lenovo
+ * @author Hossam
  */
 public class XOClient {
 
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
     private static final ResponseManager responseManager = ResponseManager.getInstance();
+    private PrintWriter writer;
 
-    public XOClient() {}
+    public XOClient() {
+    }
 
     public void connect(Socket socket) {
         try (
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-        ) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));) {
+            writer = new PrintWriter(socket.getOutputStream(), true);
             isConnected.set(true);
 
             String request;
             while ((request = reader.readLine()) != null) {
-                
+
+                System.out.println("request");
+                System.out.println(request);
                 if (request.isBlank()) {
                     continue;
                 }
-                String response = getResponse(request.trim());
+                String response = responseManager.getResponse(request.trim(), this);
 
-                writer.println(response);
+                sendToClient(response);
             }
         } catch (IOException ex) {
-            
+
         } finally {
             disconnect(socket);
         }
     }
 
-    private String getResponse(String request) {
-        return responseManager.getResponse(request);
+    private boolean sendToClient(String response) {
+        System.out.println("response");
+        System.out.println(response);
+        if (writer != null) {
+            writer.println(response);
+            return true;
+        }
+        return false;
     }
-    
+
+    /**
+     * @return false means client is disconnected
+     */
+    public boolean sendToListener(EndPoint endPoint, String response) {
+        return sendToClient(endPoint.getCode() + "|" + -1 + "|" + response);
+    }
+
     private void disconnect(Socket socket) {
         isConnected.set(false);
-        
+        if (writer != null) {
+            writer.close();
+        }
+        writer = null;
         try {
-            if (!socket.isClosed()){ 
+            if (!socket.isClosed()) {
                 socket.close();
             }
         } catch (IOException ex) {
         }
     }
-    
+
     public boolean isClientConnected() {
         return isConnected.get();
     }

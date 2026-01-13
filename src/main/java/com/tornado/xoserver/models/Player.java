@@ -15,32 +15,44 @@ public class Player {
     private int wins;
     private int draws;
     private int losses;
-    private boolean isInGame;
+    private boolean playing;
+    
+    
+    public Player(){}
 
-    public Player() {
-    }
-
-    public Player(int id, String username,
-            int wins, int draws,
-            int losses,
-            boolean isInGame
-    ) {
+    public Player(int id, String username, int wins, int losses, int draws, boolean playing) {
         this.id = id;
         this.username = username;
         this.wins = wins;
-        this.draws = draws;
         this.losses = losses;
-        this.isInGame = isInGame;
+        this.playing = playing;
+        this.draws = draws;
     }
 
-    public boolean isIsInGame() {
-        return isInGame;
+    public int getDraws() {
+        return draws;
     }
 
-    public void setIsInGame(boolean isInGame) {
-        this.isInGame = isInGame;
+    public int getId() {
+        return id;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public int getWins() {
+        return wins;
+    }
+
+    public int getLosses() {
+        return losses;
+    }
+
+    public boolean isPlaying() {
+        return this.playing;
+    }
+    
     public void setId(int id) {
         this.id = id;
     }
@@ -61,24 +73,7 @@ public class Player {
         this.losses = losses;
     }
 
-    public int getId() {
-        return id;
+    public void setPlaying(boolean playing) {
+        this.playing = playing;
     }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public int getWins() {
-        return wins;
-    }
-
-    public int getDraws() {
-        return draws;
-    }
-
-    public int getLosses() {
-        return losses;
-    }
-
 }

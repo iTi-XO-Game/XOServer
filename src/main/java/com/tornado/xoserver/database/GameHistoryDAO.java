@@ -2,6 +2,7 @@ package com.tornado.xoserver.database;
 
 
 import com.tornado.xoserver.models.GameHistory;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class GameHistoryDAO {
                 ps.setNull(3, Types.INTEGER);
 
             ps.setInt(4, game.isDraw() ? 1 : 0);
-            ps.setTimestamp(5, Timestamp.valueOf(game.getGameDate()));
+            ps.setTimestamp(5, new Timestamp(game.getGameDate()));
 
             ps.executeUpdate();
             return true;
@@ -54,7 +55,7 @@ public class GameHistoryDAO {
 
                 game.setDraw(rs.getInt("isDraw") == 1);
                 Timestamp ts = rs.getTimestamp("gameDate");
-                game.setGameDate(ts.toLocalDateTime());
+                game.setGameDate(ts.getTime());
 
                 return game;
             }
@@ -84,8 +85,9 @@ public class GameHistoryDAO {
                 else game.setWinnerId(winner);
 
                 game.setDraw(rs.getInt("isDraw") == 1);
+
                 Timestamp ts = rs.getTimestamp("gameDate");
-                game.setGameDate(ts.toLocalDateTime());
+                game.setGameDate(ts.getTime());
 
                 list.add(game);
             }
@@ -109,4 +111,45 @@ public class GameHistoryDAO {
             return false;
         }
     }
+
+    public ArrayList<GameHistory> getPlayerGames(int playerId) {
+
+        ArrayList<GameHistory> gameHistories = new ArrayList<>();
+
+        String sql = "SELECT * FROM GAMESHISTORY WHERE playerXId = ? OR playerOId = ?";
+
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, playerId);
+            ps.setInt(2, playerId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                GameHistory game = new GameHistory();
+
+                game.setId(rs.getInt("id"));
+                game.setPlayerXId(rs.getInt("playerXId"));
+                game.setPlayerOId(rs.getInt("playerOId"));
+
+                Integer winner = rs.getObject("winnerId", Integer.class);
+                game.setWinnerId(winner);
+
+                game.setDraw(rs.getBoolean("isDraw"));
+
+                Timestamp ts = rs.getTimestamp("gameDate");
+                if (ts != null)
+                    game.setGameDate(ts.getTime());
+
+                gameHistories.add(game);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return gameHistories;
+    }
+
 }
