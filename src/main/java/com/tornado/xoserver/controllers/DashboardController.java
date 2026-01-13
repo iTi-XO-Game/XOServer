@@ -9,6 +9,7 @@ import com.tornado.xoserver.Screen;
 import com.tornado.xoserver.server.ServerLog;
 import com.tornado.xoserver.database.PlayerDAO;
 import com.tornado.xoserver.models.Stats;
+import com.tornado.xoserver.server.ResponseManager;
 import com.tornado.xoserver.server.ServerManager;
 import java.io.IOException;
 import javafx.fxml.*;
@@ -20,6 +21,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import javafx.animation.KeyFrame;
@@ -141,9 +143,10 @@ public class DashboardController implements Initializable {
     }
 
     private void setupStats() {
-        PlayerDAO playerDAO=new PlayerDAO();
-        Stats.allPlayers=playerDAO.getAllPlayersNames();
-        if(Stats.allPlayers==null){
+        getAllPlayers();
+        getOnlinePlayers();
+        getOfflinePlayers();
+        if(Stats.allPlayers==null || Stats.allOnlinePlayers == null){
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "انت ليه عايز تفتح سيرفرين في نفس الوقت؟\nاقفل السيرفر المفتوح و تعالى تاني", ButtonType.OK);
             alert.setHeaderText("احنا هنهزر");
             alert.showAndWait().ifPresent((response) -> {
@@ -152,14 +155,44 @@ public class DashboardController implements Initializable {
             
         }
         else {
+
             Stats.total.set(Stats.allPlayers.size());
             totalUsersLabel.textProperty().bind(Stats.total.asString());
 
-            onlineUsersLabel.setText("42");
-            offlineUsersLabel.setText("1198");
-            activeSessionsLabel.setText("8");
+            Stats.online.set(Stats.allOnlinePlayers.size());
+            onlineUsersLabel.textProperty().bind(Stats.online.asString());
+
+            Stats.offline.set(Stats.allOfflinePlayers.size());
+            offlineUsersLabel.textProperty().bind(Stats.offline.asString());
+
+            activeSessionsLabel.setText("80");
         }
 
+    }
+
+    private void getAllPlayers()
+    {
+        PlayerDAO playerDAO=new PlayerDAO();
+        Stats.allPlayers=playerDAO.getAllPlayersNames();
+    }
+
+    private void getOnlinePlayers()
+    {
+        ResponseManager manager = ResponseManager.getInstance();
+        Stats.allOnlinePlayers = manager.getOnlinePlayersName();
+    }
+
+    private void getOfflinePlayers()
+    {
+        List<String> temp = new ArrayList<>();
+
+        for (String val : Stats.allPlayers)
+        {
+            if (!Stats.allOnlinePlayers.contains(val))
+                temp.add(val);
+        }
+
+        Stats.allOfflinePlayers = temp;
     }
 
     private void openUsers(String title, List<String> users) {
@@ -186,11 +219,11 @@ public class DashboardController implements Initializable {
     }
 
     private List<String> getOnlineUsers() {
-        return List.of("Alice", "John");
+        return Stats.allOnlinePlayers;
     }
 
     private List<String> getOfflineUsers() {
-        return List.of("Bob");
+        return Stats.allOfflinePlayers;
     }
 
 
