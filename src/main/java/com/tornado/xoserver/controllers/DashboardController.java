@@ -22,6 +22,9 @@ import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import javafx.scene.layout.BorderPane;
 
 public class DashboardController implements Initializable {
 
@@ -29,7 +32,8 @@ public class DashboardController implements Initializable {
     private VBox chartContainer;
     @FXML
     private ListView<String> logsList;
-
+    @FXML
+    private BorderPane rootPane;
     @FXML
     private VBox totalUsersCard, onlineUsersCard, offlineUsersCard, activeSessionsCard;
     @FXML
@@ -39,12 +43,32 @@ public class DashboardController implements Initializable {
     @FXML
     private Button startServerButton, stopServerButton;
 
+    @FXML
+    private TextField ipTextField;
+    @FXML
+    private TextField socketTextField;
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupChart();
         loadLogs();
         setupStats();
-        ServerManager.getInstance().startServer(()->{});
+        ServerManager.getInstance().startServer(() -> {
+        });
+
+        socketTextField.setText("8181");
+        Platform.runLater(() -> rootPane.requestFocus());
+        try {
+
+            InetAddress localhost = InetAddress.getLocalHost();
+            String ip = localhost.getHostAddress();
+
+            ipTextField.setText(ip);
+
+        } catch (UnknownHostException e) {
+            ipTextField.setText("127.0.0.1"); // the default...
+            e.printStackTrace();
+        }
     }
 
     private void setupChart() {
