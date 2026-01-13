@@ -279,6 +279,9 @@ public class ResponseManager {
                 Platform.runLater(()->{
                     Stats.online.set(Stats.online.get() + 1);
                     Stats.allOnlinePlayers.add(sender.getUsername());
+
+                    Stats.offline.set(Stats.offline.get() - 1);
+                    Stats.allOfflinePlayers.remove(sender.getUsername());
                 });
                 notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
 
@@ -408,7 +411,10 @@ public class ResponseManager {
         Platform.runLater(()->
         {
             Stats.allOnlinePlayers.remove(player.getUsername());
-            Stats.online.set(Stats.allOnlinePlayers.size());
+            Stats.online.set(Stats.online.get() - 1);
+
+            Stats.allOfflinePlayers.add(player.getUsername());
+            Stats.offline.set(Stats.offline.get() + 1);
         });
 
         if (player != null) {
