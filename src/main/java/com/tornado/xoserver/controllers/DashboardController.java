@@ -143,9 +143,10 @@ public class DashboardController implements Initializable {
     }
 
     private void setupStats() {
-        PlayerDAO playerDAO=new PlayerDAO();
-        Stats.allPlayers=playerDAO.getAllPlayersNames();
-        if(Stats.allPlayers==null){
+        getAllPlayers();
+        getOnlinePlayers();
+        getOfflinePlayers();
+        if(Stats.allPlayers==null || Stats.allOnlinePlayers == null){
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "انت ليه عايز تفتح سيرفرين في نفس الوقت؟\nاقفل السيرفر المفتوح و تعالى تاني", ButtonType.OK);
             alert.setHeaderText("احنا هنهزر");
             alert.showAndWait().ifPresent((response) -> {
