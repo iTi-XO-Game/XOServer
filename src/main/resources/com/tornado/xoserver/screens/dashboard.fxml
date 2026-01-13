@@ -163,24 +163,6 @@
                     <Label fx:id="offlineUsersLabel" styleClass="stat-value" text="0" />
                 </VBox>
 
-               
-                <VBox fx:id="activeSessionsCard" alignment="TOP_LEFT" onMouseClicked="#onActiveSessionsClick" spacing="12" styleClass="stat-card" HBox.hgrow="ALWAYS">
-
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <StackPane styleClass="sessionsIcon">
-                            <ImageView fitHeight="40" fitWidth="40" preserveRatio="true">
-                                <image>
-                                    <Image url="@../images/activesessions.png" />
-                                </image>
-                            </ImageView>
-                        </StackPane>
-
-                        <Label styleClass="stat-title" text="ACTIVE SESSIONS" />
-                    </HBox>
-
-                    <Label fx:id="activeSessionsLabel" styleClass="stat-value" text="0" />
-                </VBox>
-
             </HBox>
 
 

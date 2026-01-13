@@ -32,8 +32,7 @@ public class ServerLog {
                 "[" + LocalTime.now().format(TIME) + "] "
                 + level + ": " + message;
 
-        // Console
-        System.out.println(log);
+
 
         // UI
         if (uiConsumer != null) {
