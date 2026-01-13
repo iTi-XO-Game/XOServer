@@ -55,27 +55,6 @@ public class DBInitializer {
                         + ")"
                 );
 
-                stmt.executeUpdate(
-                        "INSERT INTO Player (username, password, wins, draws, losses) VALUES "
-                        + "('Alice', '123456', 1, 0, 1), "
-                        + "('Bob', '123456', 0, 1, 1), "
-                        + "('Charlie', '123456', 1, 1, 0)"
-                );
-
-                stmt.executeUpdate(
-                        "INSERT INTO GamesHistory (playerXId, playerOId, winnerId, isDraw) "
-                        + "VALUES (1, 2, 1, 0)"
-                );
-                stmt.executeUpdate(
-                        "INSERT INTO GamesHistory (playerXId, playerOId, isDraw) "
-                        + "VALUES (2, 3, 1)"
-                );
-                stmt.executeUpdate(
-                        "INSERT INTO GamesHistory (playerXId, playerOId, winnerId, isDraw) "
-                        + "VALUES (1, 3, 3, 0)"
-                );
-
-
             } 
 
         } catch (SQLException e) {
