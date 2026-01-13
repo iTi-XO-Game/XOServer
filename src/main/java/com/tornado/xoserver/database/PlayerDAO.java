@@ -12,17 +12,15 @@ import com.tornado.xoserver.models.AuthRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  *
  * @author Dell
  */
 public class PlayerDAO {
 
-     public boolean createPlayer(String username, String password) {
+    public boolean createPlayer(String username, String password) {
         String sql = "INSERT INTO Player(username, password) VALUES (?, ?)";
-        try (Connection con = DBConnection.getConnection();
-              PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, username);
             ps.setString(2, password);
@@ -40,8 +38,7 @@ public class PlayerDAO {
 
     public Player getPlayerById(int id) {
         String sql = "SELECT * FROM Player WHERE id=?";
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
@@ -62,7 +59,7 @@ public class PlayerDAO {
         return null;
     }
 
-        public Player getPlayerByUsername(String userName) {
+public Player getPlayerByUsername(String userName) {
         String sql = "SELECT * FROM Player WHERE username=?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -85,29 +82,63 @@ public class PlayerDAO {
         }
         return null;
     }
+    public Player incrementWins(int id) {
+        String sql = "UPDATA Player SET wins = wins + 1 WHERE id = ?";
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
-    public static Boolean updataPlayerPass(String username, String newPass)
-    {
-        try(Connection con = DBConnection.getConnection())
-        {
+            ps.setInt(1, id);
+            ps.executeQuery();
+
+        } catch (SQLException e) {
+            //e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Player incrementDraws(int id) {
+        String sql = "UPDATA Player SET draws = draws + 1 WHERE id = ?";
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeQuery();
+        } catch (SQLException e) {
+            //e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Player incrementLosses(int id) {
+        String sql = "UPDATA Player SET losses = losses + 1 WHERE id = ?";
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeQuery();
+
+        } catch (SQLException e) {
+            //e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Boolean updataPlayerPass(String username, String newPass) {
+        try (Connection con = DBConnection.getConnection()) {
             String sql = "Update player set password = ? where username = ?";
 
             PreparedStatement ps = con.prepareStatement(sql);
 
-            ps.setString(1,newPass);
-            ps.setString(2,username);
+            ps.setString(1, newPass);
+            ps.setString(2, username);
 
-            int rowsUpdated = ps.executeUpdate() ;
+            int rowsUpdated = ps.executeUpdate();
 
             return rowsUpdated == 1;
-            
+
         } catch (SQLException e) {
             return false;
         }
     }
 
-
-    public boolean  updatePlayerStats(int winnerId, int loserId, boolean isDraw) {
+    public boolean updatePlayerStats(int winnerId, int loserId, boolean isDraw) {
         try (Connection con = DBConnection.getConnection()) {
 
             if (isDraw) {
@@ -117,13 +148,13 @@ public class PlayerDAO {
                 ps.setInt(2, loserId);
                 ps.executeUpdate();
             } else {
-                PreparedStatement psWin =
-                        con.prepareStatement("UPDATE Player SET wins = wins + 1 WHERE id=?");
+                PreparedStatement psWin
+                        = con.prepareStatement("UPDATE Player SET wins = wins + 1 WHERE id=?");
                 psWin.setInt(1, winnerId);
                 psWin.executeUpdate();
 
-                PreparedStatement psLose =
-                        con.prepareStatement("UPDATE Player SET losses = losses + 1 WHERE id=?");
+                PreparedStatement psLose
+                        = con.prepareStatement("UPDATE Player SET losses = losses + 1 WHERE id=?");
                 psLose.setInt(1, loserId);
                 psLose.executeUpdate();
             }
@@ -136,11 +167,9 @@ public class PlayerDAO {
         }
     }
 
-
     public boolean deletePlayer(int playerId) {
         String sql = "DELETE FROM Player WHERE id=?";
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setInt(1, playerId);
             return ps.executeUpdate() > 0;
@@ -150,10 +179,10 @@ public class PlayerDAO {
             return false;
         }
     }
+
     public Player loginPlayer(AuthRequest loginRequest) {
         String sql = "SELECT * FROM Player WHERE password=? AND username =?";
-        try (Connection con = DBConnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, loginRequest.getPassword());
             ps.setString(2, loginRequest.getUsername());
@@ -193,6 +222,3 @@ public class PlayerDAO {
         return null;
     }
 }
-
-
-
