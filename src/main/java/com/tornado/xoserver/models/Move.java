@@ -1,32 +1,38 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package com.tornado.xoserver.models;
 
+
+/**
+ *
+ * @author Hossam
+ */
 public class Move {
 
-    private int row;
-    private int col;
+    private char Player;
+    private int ColIndex;
+    private int rowIndex;
 
     public Move() {
     }
 
-    public Move(int row, int col) {
-        this.row = row;
-        this.col = col;
+    public Move(char player, int rowIndex, int colIndex) {
+        this.Player = player;
+        this.rowIndex = rowIndex;
+        this.ColIndex = colIndex;
     }
 
-    // getters & setters
+    public char getPlayer() {
+        return Player;
+    }
+
     public int getRow() {
-        return row;
-    }
-
-    public void setRow(int row) {
-        this.row = row;
+        return rowIndex;
     }
 
     public int getCol() {
-        return col;
-    }
-
-    public void setCol(int col) {
-        this.col = col;
+        return ColIndex;
     }
 }

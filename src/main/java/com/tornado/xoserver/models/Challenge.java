@@ -4,6 +4,8 @@
  */
 package com.tornado.xoserver.models;
 
+import com.tornado.xoserver.models.ActiveGame.GameAction;
+
 /**
  *
  * @author Hossam
@@ -29,6 +31,23 @@ public class Challenge {
         this.sender = sender;
         this.receiver = receiver;
         this.errorMessage = errorMessage;
+    }
+    
+    public ActiveGame toActiveGame() {
+        return new ActiveGame(
+                id, 
+                GameAction.START,
+                false,
+                'X', 
+                new Move(),
+                sender.getId(),
+                receiver.getId(),
+                -1,
+                System.currentTimeMillis(), 
+                sender, 
+                receiver,
+                ""
+        );
     }
 
     public ChallengeAction getAction() {

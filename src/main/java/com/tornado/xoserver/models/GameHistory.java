@@ -36,6 +36,19 @@ public class GameHistory {
                 .toInstant()
                 .toEpochMilli();
     }
+    public GameHistory(
+            int playerXId,
+            int playerOId,
+            Integer winnerId, 
+            boolean draw,
+            long gameDate
+    ) {
+        this.playerXId = playerXId;
+        this.playerOId = playerOId;
+        this.winnerId = winnerId;
+        this.draw = draw;
+        this.gameDate = gameDate;
+    }
 
     public int getId() {
         return id;
