@@ -16,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import java.util.List;
 import java.util.Map;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
@@ -55,10 +56,12 @@ public class UserListController {
                 .selectedItemProperty()
                 .addListener((obs, oldUser, newUser) -> {
                     if (newUser != null) {
-                        loadPlayerStats(newUser);
-                        getOpponentsUserName();
+                        Platform.runLater(() -> {
 
-                        displayGames();
+                            displayGames(newUser);
+
+                        });
+
                     }
                 });
 
@@ -86,43 +89,42 @@ public class UserListController {
         usersList.getItems().setAll(users);
     }
 
-    private void loadPlayerStats(String username) {
+    public void displayGames(String username) {
+
+        gameRowsContainer.getChildren().clear();
+
         selectedUserLabel.setText(username);
 
         Player player = playerDAO.getPlayerByUsername(username);
         id = player.getId();
+        getOpponentsUserName();
 
-        GameHistoryDAO gameHistoryDAO= new GameHistoryDAO();
+        GameHistoryDAO gameHistoryDAO = new GameHistoryDAO();
         List<GameHistory> gameHistoryList = gameHistoryDAO.getPlayerGames(id);
-        int wins=0;
-        int draws=0;
-        int loses=0;
+        int wins = 0;
+        int draws = 0;
+        int loses = 0;
         for (GameHistory gameHistory : gameHistoryList) {
-            if(gameHistory.getWinnerId()==id){
-                wins++;
-            }
-            else if(gameHistory.getWinnerId()==null){
+
+            if (gameHistory.getWinnerId() == null) {
                 draws++;
-            }
-            else{
+            } else if (gameHistory.getWinnerId() == id) {
+                wins++;
+            } else {
                 loses++;
             }
         }
         winsLabel.setText(String.valueOf(wins));
         drawsLabel.setText(String.valueOf(draws));
         lossesLabel.setText(String.valueOf(loses));
-    }
-
-    public void displayGames() {
-
-        gameRowsContainer.getChildren().clear();
-
-        GameHistoryDAO gameHistoryDAO = new GameHistoryDAO();
         List<GameHistory> gameModels = gameHistoryDAO.getPlayerGames(id);
 
         for (GameHistory game : gameModels) {
             HBox row = createGameRow(game);
             gameRowsContainer.getChildren().add(row);
+        }
+        if (gameModels.size() == 0) {
+            gameRowsContainer.getChildren().clear();
         }
     }
 
