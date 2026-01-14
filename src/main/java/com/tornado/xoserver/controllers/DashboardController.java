@@ -70,7 +70,7 @@ public class DashboardController implements Initializable {
                     logsList.scrollTo(logsList.getItems().size() - 1);
 
                     if (logsList.getItems().size() > 200) {
-                        logsList.getItems().remove(0);
+                        logsList.getItems().removeFirst();
                     }
                 })
         );
@@ -88,8 +88,8 @@ public class DashboardController implements Initializable {
             ipTextField.setText(ip);
 
         } catch (UnknownHostException e) {
-            ipTextField.setText("127.0.0.1"); // the default...
-            e.printStackTrace();
+            ipTextField.setText("localhost"); // the default...
+            //e.printStackTrace();
         }
     }
 
@@ -124,7 +124,7 @@ public class DashboardController implements Initializable {
                     );
 
                     if (onlineUsersSeries.getData().size() > 60) {
-                        onlineUsersSeries.getData().remove(0);
+                        onlineUsersSeries.getData().removeFirst();
                     }
                 })
         );
@@ -204,7 +204,7 @@ public class DashboardController implements Initializable {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
     }
 
