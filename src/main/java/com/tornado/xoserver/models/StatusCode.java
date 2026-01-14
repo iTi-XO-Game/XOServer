@@ -10,5 +10,6 @@ package com.tornado.xoserver.models;
  */
 public enum StatusCode {
     SUCCESS,
+    SERVER_CLOSED,
     ERROR
 }

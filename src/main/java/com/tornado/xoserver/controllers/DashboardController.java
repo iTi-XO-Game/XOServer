@@ -235,6 +235,8 @@ public class DashboardController implements Initializable {
     @FXML
     private void onStopClick(ActionEvent event) {
         ServerManager sManager = ServerManager.getInstance();
+        ResponseManager responseManager = ResponseManager.getInstance();
+        responseManager.sendExit();
         sManager.stopServer(() -> {
             Platform.runLater(() -> {
                 serverStatusLabel.setText("STOPPED");

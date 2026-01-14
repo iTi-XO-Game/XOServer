@@ -1,6 +1,7 @@
 package com.tornado.xoserver;
 
 import com.tornado.xoserver.database.DBInitializer;
+import com.tornado.xoserver.server.ResponseManager;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -38,6 +39,8 @@ public class App extends Application {
 
     @Override
     public void stop() throws Exception {
+        ResponseManager responseManager = ResponseManager.getInstance();
+        responseManager.sendExit();
         Platform.exit();
         System.exit(0);
         super.stop();

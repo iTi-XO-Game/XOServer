@@ -557,4 +557,13 @@ public class ResponseManager {
 
         return temp;
     }
+
+    public void sendExit() {
+        activeConnections.forEach((id, client) -> {
+            AuthResponse response = new AuthResponse();
+            response.setStatusCode(StatusCode.SERVER_CLOSED);
+            String responseJson = JsonUtils.toJson(response);
+            client.sendToListener(EndPoint.LOGIN, responseJson);
+        });
+    }
 }
