@@ -126,9 +126,15 @@ public class ResponseManager {
                 gameListeners.remove(activeGame.getSender().getId());
                 gameListeners.remove(activeGame.getSender().getId());
 
-                activeGame.getSender().setPlaying(false);
-                onlinePlayers.put(activeGame.getSender().getId(), activeGame.getSender());
-                notifyLobbyListeners(activeGame.getSender(), LobbyAction.ADD_ONE);
+                Player sender = activeGame.getSender();
+                sender.setPlaying(false);
+                onlinePlayers.put(sender.getId(), sender);
+                notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
+
+                Player receiver = activeGame.getReceiver();
+                receiver.setPlaying(false);
+                onlinePlayers.put(receiver.getId(), receiver);
+                notifyLobbyListeners(receiver, LobbyAction.ADD_ONE);
 
                 if (activeGame.getIsGameOn()) {
                     activeGame.setAction(GameAction.GIVE_UP);
@@ -147,9 +153,15 @@ public class ResponseManager {
             case GameAction.GIVE_UP -> {
                 saveGameToDatabase(activeGame, activeGame.getReceiver().getId());
 
-                activeGame.getSender().setPlaying(false);
-                onlinePlayers.put(activeGame.getSender().getId(), activeGame.getSender());
-                notifyLobbyListeners(activeGame.getSender(), LobbyAction.ADD_ONE);
+                Player sender = activeGame.getSender();
+                sender.setPlaying(false);
+                onlinePlayers.put(sender.getId(), sender);
+                notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
+
+                Player receiver = activeGame.getReceiver();
+                receiver.setPlaying(false);
+                onlinePlayers.put(receiver.getId(), receiver);
+                notifyLobbyListeners(receiver, LobbyAction.ADD_ONE);
 
                 activeGame.setErrorMessage("Opponent disconnected. You win!");
                 return forwardGame(activeGame);
