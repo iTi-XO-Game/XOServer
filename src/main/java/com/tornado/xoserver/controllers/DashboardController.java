@@ -88,7 +88,7 @@ public class DashboardController implements Initializable {
             ipTextField.setText(ip);
 
         } catch (UnknownHostException e) {
-            ipTextField.setText("localhost"); // the default...
+            ipTextField.setText("127.0.0.1"); // the default...
             //e.printStackTrace();
         }
     }
