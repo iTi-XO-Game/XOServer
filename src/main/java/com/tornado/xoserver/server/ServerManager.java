@@ -87,7 +87,9 @@ public class ServerManager {
 
             Stats.offline.set(Stats.total.get());
             Stats.allOfflinePlayers.clear();
-            Stats.allOfflinePlayers.addAll(Stats.allPlayers);
+            if (Stats.allPlayers != null) {
+                Stats.allOfflinePlayers.addAll(Stats.allPlayers);
+            }
         });
         if (!isRunning.get()) {
             return;
