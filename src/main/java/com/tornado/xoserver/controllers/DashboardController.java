@@ -101,7 +101,7 @@ public class DashboardController implements Initializable {
         y.setLabel("Online Users");
 
         LineChart<Number, Number> chart = new LineChart<>(x, y);
-        chart.setCreateSymbols(true);
+        chart.setCreateSymbols(false);
         chart.setLegendVisible(false);
 
         onlineUsersSeries = new XYChart.Series<>();
@@ -113,7 +113,7 @@ public class DashboardController implements Initializable {
 
     private void startOnlineUsersChartUpdater() {
         Timeline timeline = new Timeline(
-                new KeyFrame(javafx.util.Duration.minutes(1), e -> {
+                new KeyFrame(javafx.util.Duration.seconds(1), e -> {
                     int onlineCount
                             = ServerManager.getInstance().getOnlineUsersCount();
 
