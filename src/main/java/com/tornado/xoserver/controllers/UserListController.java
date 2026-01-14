@@ -92,9 +92,25 @@ public class UserListController {
         Player player = playerDAO.getPlayerByUsername(username);
         id = player.getId();
 
-        winsLabel.setText(String.valueOf(player.getWins()));
-        drawsLabel.setText(String.valueOf(player.getDraws()));
-        lossesLabel.setText(String.valueOf(player.getLosses()));
+        GameHistoryDAO gameHistoryDAO= new GameHistoryDAO();
+        List<GameHistory> gameHistoryList = gameHistoryDAO.getPlayerGames(id);
+        int wins=0;
+        int draws=0;
+        int loses=0;
+        for (GameHistory gameHistory : gameHistoryList) {
+            if(gameHistory.getWinnerId()==id){
+                wins++;
+            }
+            else if(gameHistory.getWinnerId()==null){
+                draws++;
+            }
+            else{
+                loses++;
+            }
+        }
+        winsLabel.setText(String.valueOf(wins));
+        drawsLabel.setText(String.valueOf(draws));
+        lossesLabel.setText(String.valueOf(loses));
     }
 
     public void displayGames() {
