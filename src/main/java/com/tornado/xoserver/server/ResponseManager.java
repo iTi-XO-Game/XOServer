@@ -19,9 +19,7 @@ import com.tornado.xoserver.database.GameHistoryDAO;
 import com.tornado.xoserver.models.ActiveGame.GameAction;
 
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+
 import javafx.application.Platform;
 
 /**
@@ -32,12 +30,7 @@ public class ResponseManager {
 
     private static final ResponseManager INSTANCE = new ResponseManager();
 
-    private final Map<Integer, XOClient> activeConnections = new ConcurrentHashMap<>();
-    private final Map<Integer, Player> onlinePlayers = new ConcurrentHashMap<>();
-    private final Set<Integer> challengeListeners = ConcurrentHashMap.newKeySet();
-    private final Set<Integer> lobbyListeners = ConcurrentHashMap.newKeySet();
-
-    private final ServerStateManager stateManager =   ServerStateManager.getInstance();
+    private final ServerStateManager stateManager = ServerStateManager.getInstance();
 
     public static ResponseManager getInstance() {
         return INSTANCE;
@@ -71,13 +64,13 @@ public class ResponseManager {
                 response = handleRegister(requestJson);
             }
             case LOGOUT -> {
-                response = handleLogout(requestJson);
+                handleLogout(requestJson);
             }
             case LOBBY -> {
                 response = handleLobby(requestJson);
             }
             case CHALLENGE -> {
-                response = handleChallenge(requestJson, client);
+                response = handleChallenge(requestJson);
             }
             case GAME -> {
                 response = handleGame(requestJson);
@@ -96,9 +89,8 @@ public class ResponseManager {
     }
 
 
-    private String getOpponentNamesHandling(String request)
-    {
-        OpponentNamesRequest req = JsonUtils.fromJson(request,OpponentNamesRequest.class);
+    private String getOpponentNamesHandling(String request) {
+        OpponentNamesRequest req = JsonUtils.fromJson(request, OpponentNamesRequest.class);
 
         List<Integer> opponentIds = req.getOpponentsIds();
 
@@ -119,18 +111,14 @@ public class ResponseManager {
             }
             case GameAction.STOP_LISTEN -> {
 
-                stateManager.removePlayerInGame(activeGame.getSender().getId());
-                resetGamePlayerInLobby(activeGame.getSender());
-
                 Player sender = activeGame.getSender();
+                stateManager.removePlayerInGame(sender.getId());
                 sender.setPlaying(false);
-                onlinePlayers.put(sender.getId(), sender);
-                notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
+                stateManager.updateOnlinePlayer(sender);
 
                 Player receiver = activeGame.getReceiver();
                 receiver.setPlaying(false);
-                onlinePlayers.put(receiver.getId(), receiver);
-                notifyLobbyListeners(receiver, LobbyAction.ADD_ONE);
+                stateManager.updateOnlinePlayer(receiver);
 
                 if (activeGame.getIsGameOn()) {
                     activeGame.setAction(GameAction.GIVE_UP);
@@ -151,13 +139,11 @@ public class ResponseManager {
 
                 Player sender = activeGame.getSender();
                 sender.setPlaying(false);
-                onlinePlayers.put(sender.getId(), sender);
-                notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
+                stateManager.updateOnlinePlayer(sender);
 
                 Player receiver = activeGame.getReceiver();
                 receiver.setPlaying(false);
-                onlinePlayers.put(receiver.getId(), receiver);
-                notifyLobbyListeners(receiver, LobbyAction.ADD_ONE);
+                stateManager.updateOnlinePlayer(receiver);
 
                 activeGame.setErrorMessage("Opponent disconnected. You win!");
                 return forwardGame(activeGame);
@@ -175,7 +161,7 @@ public class ResponseManager {
 
     private String forwardGame(ActiveGame activeGame) {
 
-        XOClient client = activeConnections.get(activeGame.getReceiver().getId());
+        XOClient client = stateManager.getActiveConnection(activeGame.getReceiver().getId());
 
         String response = JsonUtils.toJson(activeGame);
 
@@ -203,7 +189,7 @@ public class ResponseManager {
 
     private void saveGameToDatabase(ActiveGame activeGame, int winnerId) {
         GameHistoryDAO gameHistoryDAO = new GameHistoryDAO();
-        PlayerDAO playerDAO = new PlayerDAO();
+        PlayerDAO playerDAO = PlayerDAO.getInstance();
 
         Integer winner = winnerId;
         if (winner == -1) {
@@ -244,26 +230,15 @@ public class ResponseManager {
 
         String request = JsonUtils.toJson(activeGame);
 
-        XOClient clientX = activeConnections.get(activeGame.getPlayerXid());
+        XOClient clientX = stateManager.getActiveConnection(activeGame.getPlayerXid());
 
         clientX.sendToListener(EndPoint.GAME, request);
 
-        XOClient clientO = activeConnections.get(activeGame.getPlayerOid());
+        XOClient clientO = stateManager.getActiveConnection(activeGame.getPlayerOid());
 
         clientO.sendToListener(EndPoint.GAME, request);
 
         return request;
-    }
-
-    private void resetGamePlayerInLobby(Player sender) {
-        sender.setPlaying(false);
-        onlinePlayers.put(sender.getId(), sender);
-
-        if (onlinePlayers.containsKey(sender.getId())) {
-            notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
-        } else {
-            notifyLobbyListeners(sender, LobbyAction.REMOVE_ONE);
-        }
     }
 
     private String handleLobby(String request) {
@@ -271,9 +246,9 @@ public class ResponseManager {
 
         switch (oldData.getLobbyAction()) {
             case LISTEN -> {
-                lobbyListeners.add(oldData.getSenderId());
+                stateManager.addLobbyListener(oldData.getSenderId());
 
-                List<Player> players = getOnlineChallengers();
+                List<Player> players = stateManager.getOnlinePlayers();
                 LobbyData newData = new LobbyData(
                         oldData.getSenderId(),
                         LobbyAction.LISTEN,
@@ -283,7 +258,7 @@ public class ResponseManager {
                 return JsonUtils.toJson(newData);
             }
             case STOP_LISTEN -> {
-                lobbyListeners.remove(oldData.getSenderId());
+                stateManager.removeLobbyListener(oldData.getSenderId());
             }
             case ERROR -> {
             }
@@ -292,41 +267,17 @@ public class ResponseManager {
         return "";
     }
 
-    private String handleChallenge(String request, XOClient senderClient) {
+    private String handleChallenge(String request) {
         Challenge challenge = JsonUtils.fromJson(request, Challenge.class);
 
         switch (challenge.getAction()) {
             case LISTEN -> {
-                Player sender = challenge.getSender();
-                activeConnections.put(sender.getId(), senderClient);
-                challengeListeners.add(sender.getId());
-                onlinePlayers.put(sender.getId(), sender);
-                Platform.runLater(()->{
-                    Stats.online.set(Stats.online.get() + 1);
-                    Stats.allOnlinePlayers.add(sender.getUsername());
-
-                    Stats.offline.set(Stats.offline.get() - 1);
-                    Stats.allOfflinePlayers.remove(sender.getUsername());
-                });
-                notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
-
-                return request;
+                //todo add feature to Start listening
             }
             case STOP_LISTEN -> {
-                int pid = challenge.getSender().getId();
-                Player player = onlinePlayers.get(pid);
-                challengeListeners.remove(pid);
-                notifyLobbyListeners(player, LobbyAction.REMOVE_ONE);
-
-                return request;
+                //todo add feature to Stop listening
             }
-            case SEND -> {
-                return getChallengeResponse(challenge, request);
-            }
-            case CANCEL -> {
-                return getChallengeResponse(challenge, request);
-            }
-            case DECLINE -> {
+            case SEND, CANCEL, DECLINE -> {
                 return getChallengeResponse(challenge, request);
             }
             case ACCEPT -> {
@@ -338,14 +289,11 @@ public class ResponseManager {
 
                     Player sender = challenge.getSender();
                     sender.setPlaying(true);
-                    onlinePlayers.put(sender.getId(), sender);
+                    stateManager.updateOnlinePlayer(sender);
 
                     Player receiver = challenge.getReceiver();
                     receiver.setPlaying(true);
-                    onlinePlayers.put(receiver.getId(), receiver);
-
-                    notifyLobbyListeners(sender, LobbyAction.ADD_ONE);
-                    notifyLobbyListeners(receiver, LobbyAction.ADD_ONE);
+                    stateManager.updateOnlinePlayer(receiver);
 
                     Challenge chall = new Challenge(
                             challenge.getId(),
@@ -368,18 +316,13 @@ public class ResponseManager {
     private String getChallengeResponse(Challenge challenge, String request) {
 
         int receiverId = challenge.getReceiver().getId();
-        XOClient receiver = activeConnections.get(receiverId);
+        XOClient receiver = stateManager.getActiveConnection(receiverId);
 
         if (receiver != null) {
             boolean success = receiver.sendToListener(EndPoint.CHALLENGE, request);
             if (!success) {
-                activeConnections.remove(receiverId);
-                onlinePlayers.remove(receiverId);
-                Platform.runLater(()->{
-                    Stats.online.set(Stats.online.get() - 1);
-//                    Stats.allOnlinePlayers.add(sender.getUsername());
-                });
-                challengeListeners.remove(receiverId);
+                stateManager.removeActiveConnection(receiverId);
+                stateManager.removeOnlinePlayer(receiverId);
                 Challenge response = new Challenge(
                         challenge.getId(),
                         ChallengeAction.ERROR,
@@ -393,58 +336,18 @@ public class ResponseManager {
         return "";
     }
 
-    private List<Player> getOnlineChallengers() {
-        return challengeListeners.stream()
-                .map(onlinePlayers::get)
-                .filter(Objects::nonNull)
-                .toList();
-    }
-
-    private void notifyLobbyListeners(Player player, LobbyAction lobbyAction) {
-        LobbyData lobbyData = new LobbyData(-1, lobbyAction, player, List.of());
-        String response = JsonUtils.toJson(lobbyData);
-
-        lobbyListeners.forEach(id -> {
-            XOClient client = activeConnections.get(id);
-            if (client != null) {
-                boolean success = client.sendToListener(EndPoint.LOBBY, response);
-                if (!success) {
-                    activeConnections.remove(id);
-                    onlinePlayers.remove(id);
-                    challengeListeners.remove(id);
-                    lobbyListeners.remove(id);
-                }
-            } else {
-                lobbyListeners.remove(id);
-            }
-        });
-    }
-
-    private String handleLogout(String request) {
+    private void handleLogout(String request) {
         int pid;
         try {
             pid = Integer.parseInt(request);
         } catch (NumberFormatException e) {
-            return "";
+            return;
         }
 
-        activeConnections.remove(pid);
-        challengeListeners.remove(pid);
-        lobbyListeners.remove(pid);
-        Player player = onlinePlayers.remove(pid);
+        stateManager.removeActiveConnection(pid);
+        stateManager.removeLobbyListener(pid);
+        stateManager.removeOnlinePlayer(pid);
 
-        Platform.runLater(()->
-        {
-            Stats.allOnlinePlayers.remove(player.getUsername());
-            Stats.online.set(Stats.online.get() - 1);
-
-            Stats.allOfflinePlayers.add(player.getUsername());
-            Stats.offline.set(Stats.offline.get() + 1);
-        });
-
-        if (player != null) {
-            notifyLobbyListeners(player, LobbyAction.REMOVE_ONE);
-        }
         String gameId = stateManager.getPlayerInGame(pid);
         if (gameId != null) {
             ActiveGame game = stateManager.getActiveGame(gameId);
@@ -459,7 +362,7 @@ public class ResponseManager {
                 } else {
                     game.setAction(GameAction.STOP_LISTEN);
                     game.setErrorMessage("Opponent disconnected.");
-                    XOClient clientX = activeConnections.get(rivalId);
+                    XOClient clientX = stateManager.getActiveConnection(rivalId);
                     if (clientX != null) {
                         String response = JsonUtils.toJson(game);
                         clientX.sendToListener(EndPoint.GAME, response);
@@ -468,21 +371,20 @@ public class ResponseManager {
                 stateManager.removeActiveGame(gameId);
                 stateManager.removePlayerInGame(pid);
                 stateManager.removePlayerInGame(rivalId);
-                XOClient clientX = activeConnections.get(rivalId);
+                XOClient clientX = stateManager.getActiveConnection(rivalId);
                 if (clientX != null) {
                     String response = JsonUtils.toJson(game);
                     clientX.sendToListener(EndPoint.GAME, response);
                 }
             }
         }
-        return "";
     }
 
     // I know that this function may not be placed on the best place, but for now let's celebrate that it's actually working
     private String handleLogin(String requestJson, XOClient client) {
         AuthRequest loginRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
 
-        PlayerDAO playerDao = new PlayerDAO();
+        PlayerDAO playerDao = PlayerDAO.getInstance();
         Player p = playerDao.loginPlayer(loginRequest);
 
         if (p == null) {
@@ -491,10 +393,8 @@ public class ResponseManager {
             AuthResponse authResponse = new AuthResponse(StatusCode.SUCCESS, p.getId(), p.getUsername());
 
             authResponse.setPlayer(p);
-            onlinePlayers.put(p.getId(), p);
-            activeConnections.put(p.getId(), client);
-            challengeListeners.add(p.getId());
-            notifyLobbyListeners(p, LobbyAction.ADD_ONE);
+            stateManager.addOnlinePlayer(p);
+            stateManager.addActiveConnection(p.getId(), client);
 
             return JsonUtils.toJson(authResponse);
         }
@@ -503,12 +403,8 @@ public class ResponseManager {
     private String handleRegister(String requestJson) {
         AuthRequest registerRequest = JsonUtils.fromJson(requestJson, AuthRequest.class);
 
-        PlayerDAO playerDao = new PlayerDAO();
+        PlayerDAO playerDao = PlayerDAO.getInstance();
         if (playerDao.createPlayer(registerRequest.getUsername(), registerRequest.getPassword())) {
-            Platform.runLater(() -> {
-                Stats.total.set(Stats.total.get() + 1);
-                Stats.allPlayers.add(registerRequest.getUsername());
-            });
             return JsonUtils.toJson(new AuthResponse(StatusCode.SUCCESS));
         } else {
             return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "The User Name Already Exists"));
@@ -544,22 +440,11 @@ public class ResponseManager {
         return response;
     }
 
-    public List<String> getOnlinePlayersName()
-    {
-        List<String> temp = new ArrayList<>();
-
-        for (Player val : onlinePlayers.values())
-            temp.add(val.getUsername());
-
-        return temp;
-    }
-
     public void sendExit() {
-        activeConnections.forEach((id, client) -> {
-            AuthResponse response = new AuthResponse();
-            response.setStatusCode(StatusCode.SERVER_CLOSED);
-            String responseJson = JsonUtils.toJson(response);
-            client.sendToListener(EndPoint.LOGIN, responseJson);
-        });
+        AuthResponse response = new AuthResponse();
+        response.setStatusCode(StatusCode.SERVER_CLOSED);
+        String responseJson = JsonUtils.toJson(response);
+        stateManager.broadcastToAllConnections(EndPoint.LOGIN, responseJson);
+        stateManager.clearOnlinePlayers();
     }
 }

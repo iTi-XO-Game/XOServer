@@ -1,11 +1,14 @@
 package com.tornado.xoserver.server;
 
 import com.tornado.xoserver.models.ActiveGame;
+import com.tornado.xoserver.models.LobbyData;
 import com.tornado.xoserver.models.Player;
-
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 
 /**
  *
@@ -17,11 +20,13 @@ public class ServerStateManager {
 
     private final Map<Integer, XOClient> activeConnections = new ConcurrentHashMap<>();
     private final Map<Integer, Player> onlinePlayers = new ConcurrentHashMap<>();
-    private final Set<Integer> challengeListeners = ConcurrentHashMap.newKeySet();
     private final Set<Integer> lobbyListeners = ConcurrentHashMap.newKeySet();
 
     private final Map<String, ActiveGame> activeGames = new ConcurrentHashMap<>();
     private final Map<Integer, String> playersInGames = new ConcurrentHashMap<>();
+
+    private final AtomicInteger observerIdGenerator = new AtomicInteger(0);
+    private final Map<Integer, BiConsumer<Player, PlayerAction>> onlinePlayersObservers = new ConcurrentHashMap<>();
 
     public static ServerStateManager getInstance() {
         return INSTANCE;
@@ -34,25 +39,78 @@ public class ServerStateManager {
         activeConnections.put(id, client);
     }
 
+    public XOClient getActiveConnection(int id) {
+        return activeConnections.get(id);
+    }
+
+    public void broadcastToAllConnections(EndPoint endPoint, String responseJson) {
+        activeConnections.forEach(
+                (id, client) -> client.sendToListener(endPoint, responseJson)
+        );
+    }
+
     public void removeActiveConnection(int id) {
         activeConnections.remove(id);
     }
 
     public void addOnlinePlayer(Player player) {
         onlinePlayers.put(player.getId(), player);
+        notifyLobbyListeners(player, LobbyData.LobbyAction.ADD_ONE);
+        onlinePlayersObservers.forEach(
+                (id, consumer) -> consumer.accept(player, PlayerAction.ADDED)
+        );
     }
 
-    public void removeOnlinePlayer(int id) {
-        onlinePlayers.remove(id);
+    public void updateOnlinePlayer(Player player) {
+        onlinePlayers.put(player.getId(), player);
+        notifyLobbyListeners(player, LobbyData.LobbyAction.ADD_ONE);
+        onlinePlayersObservers.forEach(
+                (id, consumer) -> consumer.accept(player, PlayerAction.UPDATED)
+        );
     }
 
-
-    public void addChallengeListener(int id) {
-        challengeListeners.add(id);
+    public void removeOnlinePlayer(int pid) {
+        Player player = onlinePlayers.remove(pid);
+        notifyLobbyListeners(player, LobbyData.LobbyAction.REMOVE_ONE);
+        onlinePlayersObservers.forEach(
+                (id, consumer) -> consumer.accept(player, PlayerAction.REMOVED)
+        );
     }
 
-    public void removeChallengeListener(int id) {
-        challengeListeners.remove(id);
+    public void clearOnlinePlayers() {
+        onlinePlayers.clear();
+        onlinePlayersObservers.forEach(
+                (id, consumer) -> consumer.accept(new Player(), PlayerAction.CLEARED)
+        );
+    }
+
+    public void addOnlinePlayersObserver(BiConsumer<Player, PlayerAction> consumer) {
+        int observerId = observerIdGenerator.incrementAndGet();
+        onlinePlayersObservers.put(observerId, consumer);
+    }
+
+    private void notifyLobbyListeners(Player player, LobbyData.LobbyAction lobbyAction) {
+
+        LobbyData lobbyData = new LobbyData(-1, lobbyAction, player, List.of());
+        String response = JsonUtils.toJson(lobbyData);
+
+        lobbyListeners.forEach(id -> {
+            XOClient client = getActiveConnection(id);
+            if (client != null) {
+                boolean success = client.sendToListener(EndPoint.LOBBY, response);
+                if (!success) {
+                    removeActiveConnection(id);
+                    onlinePlayers.remove(id);
+                    lobbyListeners.remove(id);
+                }
+            } else {
+                lobbyListeners.remove(id);
+            }
+        });
+    }
+
+    public List<Player> getOnlinePlayers() {
+        return onlinePlayers.values().stream().toList();
     }
 
 

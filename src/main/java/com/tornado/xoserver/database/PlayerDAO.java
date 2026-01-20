@@ -12,14 +12,40 @@ import java.util.Map;
 
 import com.tornado.xoserver.models.Player;
 import com.tornado.xoserver.models.AuthRequest;
+import com.tornado.xoserver.server.PlayerAction;
+
 import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  *
  * @author Dell
  */
 public class PlayerDAO {
+
+    public enum DAOAction {
+        ADDED, UPDATED
+    }
+
+    private static final PlayerDAO INSTANCE = new PlayerDAO();
+
+    private final AtomicInteger observerIdGenerator = new AtomicInteger(0);
+    private final Map<Integer, BiConsumer<Player, DAOAction>> playersObservers = new ConcurrentHashMap<>();
+
+    private PlayerDAO() {
+    }
+
+    public static PlayerDAO getInstance() {
+        return INSTANCE;
+    }
+
+    public void registerDAOListener(BiConsumer<Player, DAOAction> consumer) {
+        int observerId = observerIdGenerator.incrementAndGet();
+        playersObservers.put(observerId, consumer);
+    }
 
     public boolean createPlayer(String username, String password) {
         String sql = "INSERT INTO Player(username, password) VALUES (?, ?)";
@@ -30,6 +56,11 @@ public class PlayerDAO {
             ps.executeUpdate();
 
             ResultSet rs = ps.getGeneratedKeys();
+
+            Player player = getPlayerByUsername(username);
+            playersObservers.forEach(
+                    (cid, action) -> action.accept(player, DAOAction.ADDED)
+            );
 
             return true;
 
@@ -62,7 +93,7 @@ public class PlayerDAO {
         return null;
     }
 
-public Player getPlayerByUsername(String userName) {
+    public Player getPlayerByUsername(String userName) {
         String sql = "SELECT * FROM Player WHERE username=?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -85,6 +116,7 @@ public Player getPlayerByUsername(String userName) {
         }
         return null;
     }
+
     public Player incrementWins(int id) {
         String sql = "UPDATA Player SET wins = wins + 1 WHERE id = ?";
         try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
@@ -207,7 +239,8 @@ public Player getPlayerByUsername(String userName) {
         }
         return null;
     }
- public static Map<Integer, String> getUsernames(List<Integer> usersIds) {
+
+    public static Map<Integer, String> getUsernames(List<Integer> usersIds) {
 
         Map<Integer, String> temp = new HashMap<>();
 
@@ -247,22 +280,29 @@ public Player getPlayerByUsername(String userName) {
 
         return temp;
     }
-    
-    public List<String> getAllPlayersNames() {
-        String sql = "select username from player";
-        List<String> playersName = new ArrayList<>();
+
+    public List<Player> getAllPlayers() {
+        String sql = "select * from player";
+        List<Player> players = new ArrayList<>();
         try (Connection con = DBConnection.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                playersName.add(rs.getString("username"));
+                String name = rs.getString("username");
+                int id = rs.getInt("id");
+                int wins = rs.getInt("wins");
+                int draws = rs.getInt("draws");
+                int losses = rs.getInt("losses");
+                Player p = new Player(id, name, wins, draws, losses, false);
+
+                players.add(p);
             }
-            return playersName;
+            return players;
         } catch (SQLException e) {
             //e.printStackTrace();
         }
         return null;
     }
-    
+
 }

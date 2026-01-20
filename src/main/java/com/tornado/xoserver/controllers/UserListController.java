@@ -39,7 +39,7 @@ public class UserListController {
     @FXML
     private TextField searchTextField;
 
-    private final PlayerDAO playerDAO = new PlayerDAO();
+    private final PlayerDAO playerDAO = PlayerDAO.getInstance();
 
     private int id;
 

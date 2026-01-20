@@ -11,11 +11,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import com.tornado.xoserver.models.Stats;
+
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  *
@@ -39,7 +37,6 @@ public class ServerManager {
     private Thread serverThread;
 
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
-    private final List<Socket> onlineClients = new CopyOnWriteArrayList<>();
 
     public void startServer(Runnable callback) {
         if (!isRunning.compareAndSet(false, true)) {
@@ -59,7 +56,6 @@ public class ServerManager {
             ServerLog.info("Listening on port " + PORT);
             while (isRunning.get() && !Thread.currentThread().isInterrupted()) {
                 Socket clientSocket = serverSocket.accept();
-                onlineClients.add(clientSocket);
 
                 ServerLog.info("Client connected: "
                         + clientSocket.getInetAddress());
@@ -67,7 +63,6 @@ public class ServerManager {
                     try {
                         new XOClient().connect(clientSocket);
                     } finally {
-                        onlineClients.remove(clientSocket);
                         ServerLog.info("Client disconnected: "
                                 + clientSocket.getInetAddress());
                     }
@@ -81,16 +76,6 @@ public class ServerManager {
     }
 
     public void stopServer(Runnable callback) {
-        Platform.runLater(()->{
-            Stats.online.set(0);
-            Stats.allOnlinePlayers.clear();
-
-            Stats.offline.set(Stats.total.get());
-            Stats.allOfflinePlayers.clear();
-            if (Stats.allPlayers != null) {
-                Stats.allOfflinePlayers.addAll(Stats.allPlayers);
-            }
-        });
         if (!isRunning.get()) {
             return;
         }
@@ -135,10 +120,6 @@ public class ServerManager {
 
     public boolean isServerRunning() {
         return isRunning.get();
-    }
-
-    public int getOnlineUsersCount() {
-        return onlineClients.size();
     }
 
 }

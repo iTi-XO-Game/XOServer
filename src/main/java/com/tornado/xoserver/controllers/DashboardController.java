@@ -6,12 +6,15 @@ package com.tornado.xoserver.controllers;
 
 import com.tornado.xoserver.App;
 import com.tornado.xoserver.Screen;
-import com.tornado.xoserver.server.ServerLog;
 import com.tornado.xoserver.database.PlayerDAO;
-import com.tornado.xoserver.models.Stats;
+import com.tornado.xoserver.models.Player;
+import com.tornado.xoserver.server.ServerLog;
 import com.tornado.xoserver.server.ResponseManager;
 import com.tornado.xoserver.server.ServerManager;
+
 import java.io.IOException;
+
+import com.tornado.xoserver.server.ServerStateManager;
 import javafx.fxml.*;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,17 +23,23 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javafx.scene.layout.BorderPane;
 
 public class DashboardController implements Initializable {
@@ -58,14 +67,17 @@ public class DashboardController implements Initializable {
     @FXML
     private TextField socketTextField;
 
+    private final Map<Integer, Player> allPlayers = new ConcurrentHashMap<>();
+    private final Map<Integer, Player> offlinePlayers = new ConcurrentHashMap<>();
+    private final AtomicInteger onlineCount = new AtomicInteger(0);
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         setupChart();
-        addInitialChartPoint();
         setupStats();
         startOnlineUsersChartUpdater();
         ServerLog.setUiConsumer(log
-                -> Platform.runLater(() -> {
+                        -> Platform.runLater(() -> {
                     logsList.getItems().add(log);
                     logsList.scrollTo(logsList.getItems().size() - 1);
 
@@ -95,7 +107,7 @@ public class DashboardController implements Initializable {
 
     private void setupChart() {
         NumberAxis x = new NumberAxis();
-        x.setLabel("Time (minutes)");
+        x.setLabel("Time (seconds)");
 
         NumberAxis y = new NumberAxis();
         y.setLabel("Online Users");
@@ -112,17 +124,15 @@ public class DashboardController implements Initializable {
     }
 
     private void startOnlineUsersChartUpdater() {
+        onlineUsersSeries.getData().add(
+                new XYChart.Data<>(0, 0)
+        );
         Timeline timeline = new Timeline(
                 new KeyFrame(javafx.util.Duration.seconds(1), e -> {
-                    int onlineCount
-                            = ServerManager.getInstance().getOnlineUsersCount();
-
                     minuteCounter++;
-
                     onlineUsersSeries.getData().add(
-                            new XYChart.Data<>(minuteCounter, onlineCount)
+                            new XYChart.Data<>(minuteCounter, onlineCount.get())
                     );
-
                     if (onlineUsersSeries.getData().size() > 60) {
                         onlineUsersSeries.getData().removeFirst();
                     }
@@ -133,60 +143,71 @@ public class DashboardController implements Initializable {
         timeline.play();
     }
 
-    private void addInitialChartPoint() {
-        int online
-                = ServerManager.getInstance().getOnlineUsersCount();
-
-        onlineUsersSeries.getData().add(
-                new XYChart.Data<>(0, online)
-        );
-    }
-
     private void setupStats() {
-        getAllPlayers();
-
-        if (Stats.allPlayers == null) {
+        List<Player> players = PlayerDAO.getInstance().getAllPlayers();
+        if (players == null) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION, "انت ليه عايز تفتح سيرفرين في نفس الوقت؟\nاقفل السيرفر المفتوح و تعالى تاني", ButtonType.OK);
             alert.setHeaderText("احنا هنهزر");
-            alert.showAndWait().ifPresent((response) -> {
-                Platform.exit();
-            });
-
-        } else {
-            getOnlinePlayers();
-            getOfflinePlayers();
-            Stats.total.set(Stats.allPlayers.size());
-            totalUsersLabel.textProperty().bind(Stats.total.asString());
-
-            Stats.online.set(Stats.allOnlinePlayers.size());
-            onlineUsersLabel.textProperty().bind(Stats.online.asString());
-
-            Stats.offline.set(Stats.allOfflinePlayers.size());
-            offlineUsersLabel.textProperty().bind(Stats.offline.asString());
+            alert.showAndWait();
+            Platform.exit();
+            System.exit(0);
         }
 
+        players.forEach(p -> {
+            allPlayers.put(p.getId(), p);
+            offlinePlayers.put(p.getId(), p);
+        });
+        updateCount();
+        registerOnlinePlayersObserver();
+        registerDAOListener();
     }
 
-    private void getAllPlayers() {
-        PlayerDAO playerDAO = new PlayerDAO();
-        Stats.allPlayers = playerDAO.getAllPlayersNames();
+    private void updateCount() {
+        Platform.runLater(() -> {
+            totalUsersLabel.setText(allPlayers.size() + "");
+            offlineUsersLabel.setText(offlinePlayers.size() + "");
+            onlineUsersLabel.setText(onlineCount.get() + "");
+        });
     }
 
-    private void getOnlinePlayers() {
-        ResponseManager manager = ResponseManager.getInstance();
-        Stats.allOnlinePlayers = manager.getOnlinePlayersName();
-    }
-
-    private void getOfflinePlayers() {
-        List<String> temp = new ArrayList<>();
-
-        for (String val : Stats.allPlayers) {
-            if (!Stats.allOnlinePlayers.contains(val)) {
-                temp.add(val);
+    private void registerOnlinePlayersObserver() {
+        ServerStateManager.getInstance().addOnlinePlayersObserver((player, action) -> {
+            switch (action) {
+                case ADDED -> {
+                    onlineCount.incrementAndGet();
+                    offlinePlayers.remove(player.getId());
+                    updateCount();
+                }
+                case REMOVED -> {
+                    onlineCount.decrementAndGet();
+                    offlinePlayers.put(player.getId(), player);
+                    updateCount();
+                }
+                case UPDATED -> {
+                    allPlayers.put(player.getId(), player);
+                }
+                case CLEARED -> {
+                    offlinePlayers.putAll(allPlayers);
+                    onlineCount.set(0);
+                    updateCount();
+                }
             }
-        }
+        });
+    }
 
-        Stats.allOfflinePlayers = temp;
+    private void registerDAOListener() {
+        PlayerDAO.getInstance().registerDAOListener((player, action) -> {
+            switch (action) {
+                case ADDED -> {
+                    allPlayers.put(player.getId(), player);
+                    offlinePlayers.put(player.getId(), player);
+                }
+                case UPDATED -> {
+                    allPlayers.put(player.getId(), player);
+                }
+            }
+            updateCount();
+        });
     }
 
     private void openUsers(String title, List<String> users) {
@@ -206,18 +227,6 @@ public class DashboardController implements Initializable {
         } catch (IOException ex) {
             //ex.printStackTrace();
         }
-    }
-
-    private List<String> getAllUsers() {
-        return Stats.allPlayers;
-    }
-
-    private List<String> getOnlineUsers() {
-        return Stats.allOnlinePlayers;
-    }
-
-    private List<String> getOfflineUsers() {
-        return Stats.allOfflinePlayers;
     }
 
     @FXML
@@ -247,17 +256,20 @@ public class DashboardController implements Initializable {
 
     @FXML
     private void onTotalUsersClick(MouseEvent event) {
-        openUsers("Total Users", getAllUsers());
+        List<String> names = allPlayers.values().stream().map(Player::getUsername).toList();
+        openUsers("Total Users", names);
     }
 
     @FXML
     private void onOnlineUsersClick(MouseEvent event) {
-        openUsers("Online Users", getOnlineUsers());
+        List<String> players = ServerStateManager.getInstance().getOnlinePlayers().stream().map(Player::getUsername).toList();
+        openUsers("Online Users", players);
     }
 
     @FXML
     private void onOfflineUsersClick(MouseEvent event) {
-        openUsers("Offline Users", getOfflineUsers());
+        List<String> players = offlinePlayers.values().stream().map(Player::getUsername).toList();
+        openUsers("Offline Users", players);
     }
 
 }

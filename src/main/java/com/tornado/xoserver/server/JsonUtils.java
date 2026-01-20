@@ -6,6 +6,7 @@ package com.tornado.xoserver.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 
 /**
  *
@@ -16,10 +17,20 @@ public class JsonUtils {
     private static final Gson gson = new GsonBuilder().serializeNulls().create();
 
     public static <T> String toJson(T object) {
-        return gson.toJson(object);
+        try {
+            return gson.toJson(object);
+        } catch (JsonSyntaxException e) {
+            System.err.println("Error serializing JSON: " + e.getMessage());
+            throw new RuntimeException("Error serializing JSON");
+        }
     }
 
     public static <T> T fromJson(String jsonString, Class<T> clazz) {
-        return gson.fromJson(jsonString, clazz);
+        try {
+            return gson.fromJson(jsonString, clazz);
+        } catch (JsonSyntaxException e) {
+            System.err.println("Error deserializing JSON: " + e.getMessage());
+            throw new RuntimeException("Error deserializing JSON");
+        }
     }
 }
