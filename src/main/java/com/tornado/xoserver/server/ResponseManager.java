@@ -37,9 +37,7 @@ public class ResponseManager {
     private final Set<Integer> challengeListeners = ConcurrentHashMap.newKeySet();
     private final Set<Integer> lobbyListeners = ConcurrentHashMap.newKeySet();
 
-    private final Map<String, ActiveGame> activeGames = new ConcurrentHashMap<>();
-    private final Map<Integer, String> playersInGames = new ConcurrentHashMap<>();
-    private final Set<Integer> gameListeners = ConcurrentHashMap.newKeySet();
+    private final ServerStateManager stateManager =   ServerStateManager.getInstance();
 
     public static ResponseManager getInstance() {
         return INSTANCE;
@@ -82,7 +80,7 @@ public class ResponseManager {
                 response = handleChallenge(requestJson, client);
             }
             case GAME -> {
-                response = handleGame(requestJson, client);
+                response = handleGame(requestJson);
             }
             case UPDATE_USER_PASS -> {
                 response = handleForgetPassword(requestJson);
@@ -111,20 +109,18 @@ public class ResponseManager {
         return JsonUtils.toJson(res);
     }
 
-    private String handleGame(String request, XOClient senderClient) {
+    private String handleGame(String request) {
         ActiveGame activeGame = JsonUtils.fromJson(request, ActiveGame.class);
 
         switch (activeGame.getAction()) {
             case GameAction.LISTEN -> {
-                playersInGames.put(activeGame.getSender().getId(), activeGame.getId());
+                stateManager.addPlayerInGame(activeGame.getSender().getId(), activeGame.getId());
                 return startGame(activeGame);
             }
             case GameAction.STOP_LISTEN -> {
 
-                playersInGames.remove(activeGame.getSender().getId());
+                stateManager.removePlayerInGame(activeGame.getSender().getId());
                 resetGamePlayerInLobby(activeGame.getSender());
-                gameListeners.remove(activeGame.getSender().getId());
-                gameListeners.remove(activeGame.getSender().getId());
 
                 Player sender = activeGame.getSender();
                 sender.setPlaying(false);
@@ -240,7 +236,7 @@ public class ResponseManager {
 
     private String startGame(ActiveGame game) {
 
-        ActiveGame activeGame = activeGames.get(game.getId());
+        ActiveGame activeGame = stateManager.getActiveGame(game.getId());
         game.setPlayerXid(game.getSender().getId());
         game.setPlayerOid(game.getReceiver().getId());
         game.setGameDate(System.currentTimeMillis());
@@ -338,7 +334,7 @@ public class ResponseManager {
                 if (response.isBlank()) {
 
                     ActiveGame game = challenge.toActiveGame();
-                    activeGames.put(challenge.getId(), game);
+                    stateManager.addActiveGame(challenge.getId(), game);
 
                     Player sender = challenge.getSender();
                     sender.setPlaying(true);
@@ -449,9 +445,9 @@ public class ResponseManager {
         if (player != null) {
             notifyLobbyListeners(player, LobbyAction.REMOVE_ONE);
         }
-        String gameId = playersInGames.get(pid);
+        String gameId = stateManager.getPlayerInGame(pid);
         if (gameId != null) {
-            ActiveGame game = activeGames.get(gameId);
+            ActiveGame game = stateManager.getActiveGame(gameId);
             if (game != null) {
                 int rivalId = game.getPlayerXid() == pid ? game.getPlayerOid() : game.getPlayerXid();
                 if (game.getIsGameOn()) {
@@ -469,9 +465,9 @@ public class ResponseManager {
                         clientX.sendToListener(EndPoint.GAME, response);
                     }
                 }
-                activeGames.remove(gameId);
-                playersInGames.remove(pid);
-                playersInGames.remove(rivalId);
+                stateManager.removeActiveGame(gameId);
+                stateManager.removePlayerInGame(pid);
+                stateManager.removePlayerInGame(rivalId);
                 XOClient clientX = activeConnections.get(rivalId);
                 if (clientX != null) {
                     String response = JsonUtils.toJson(game);
