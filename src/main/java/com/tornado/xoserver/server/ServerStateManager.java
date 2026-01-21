@@ -146,4 +146,7 @@ public class ServerStateManager {
         playersInGames.remove(id);
     }
 
+    public boolean isOnline(int id) {
+        return onlinePlayers.containsKey(id);
+    }
 }

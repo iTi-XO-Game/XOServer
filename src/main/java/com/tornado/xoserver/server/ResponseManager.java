@@ -167,7 +167,7 @@ public class ResponseManager {
 
         boolean success = client.sendToListener(EndPoint.GAME, response);
 
-        if (success || !activeGame.getIsGameOn()) {
+        if (success) {
             return "";
         }
 
@@ -390,6 +390,9 @@ public class ResponseManager {
         if (p == null) {
             return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "No User Found"));
         } else {
+            if (stateManager.isOnline(p.getId())){
+                return JsonUtils.toJson(new AuthResponse(StatusCode.ERROR, "User is already online"));
+            }
             AuthResponse authResponse = new AuthResponse(StatusCode.SUCCESS, p.getId(), p.getUsername());
 
             authResponse.setPlayer(p);
