@@ -133,9 +133,6 @@ public class DashboardController implements Initializable {
                     onlineUsersSeries.getData().add(
                             new XYChart.Data<>(minuteCounter, onlineCount.get())
                     );
-                    if (onlineUsersSeries.getData().size() > 60) {
-                        onlineUsersSeries.getData().removeFirst();
-                    }
                 })
         );
 
@@ -235,7 +232,9 @@ public class DashboardController implements Initializable {
         ServerManager sManager = ServerManager.getInstance();
         sManager.startServer(() -> {
             Platform.runLater(() -> {
-                serverStatusLabel.setText("RUNNING");
+                serverStatusLabel.getStyleClass().add("status-running");
+                serverStatusLabel.getStyleClass().removeAll("status-closed");
+                serverStatusLabel.setText("Running");
                 logsList.getItems().add("INFO: Server started");
             });
         });
@@ -248,7 +247,9 @@ public class DashboardController implements Initializable {
         responseManager.sendExit();
         sManager.stopServer(() -> {
             Platform.runLater(() -> {
-                serverStatusLabel.setText("STOPPED");
+                serverStatusLabel.getStyleClass().removeAll("status-running");
+                serverStatusLabel.getStyleClass().add("status-closed");
+                serverStatusLabel.setText("Stopped");
                 logsList.getItems().add("INFO: Server stopped");
             });
         });

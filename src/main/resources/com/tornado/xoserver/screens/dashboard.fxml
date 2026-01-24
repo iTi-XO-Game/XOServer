@@ -45,7 +45,7 @@
                 <VBox>
                     <Label styleClass="section-title" text="Server Dashboard" />
                     <Label styleClass="subtitle" text="Manage game server status &amp; logs" />
-                    <HBox maxWidth="1.7976931348623157E308" spacing="15.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
+                    <HBox maxWidth="1.7976931348623157E308" spacing="15.0" >
                         <children>
                             <VBox maxWidth="1.7976931348623157E308" spacing="5.0" HBox.hgrow="ALWAYS">
                                 <children>
@@ -68,8 +68,7 @@
                 </VBox>
 
                 <Region HBox.hgrow="ALWAYS" />
-
-                <Label fx:id="serverStatusLabel" styleClass="status-running" text="RUNNING" />
+                <Label fx:id="serverStatusLabel" minWidth="90.0" styleClass="status-running" text="Running" />
 
                 <Button fx:id="startServerButton" onAction="#onStartClick" styleClass="start-btn">
                     <graphic>
@@ -82,7 +81,7 @@
                             </ImageView>
 
       
-                            <Label styleClass="button-text" text="Start Server" />
+                            <Label minWidth="80.0" styleClass="button-text" text="Start Server" />
                         </HBox>
                     </graphic>
                 </Button>
@@ -97,7 +96,7 @@
                             </ImageView>
 
       
-                            <Label styleClass="button-text" text="Stop Server" />
+                            <Label minWidth="80.0" styleClass="button-text" text="Stop Server" />
                         </HBox>
                     </graphic>
                 </Button>

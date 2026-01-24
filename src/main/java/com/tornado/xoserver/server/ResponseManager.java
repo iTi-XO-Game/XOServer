@@ -112,13 +112,9 @@ public class ResponseManager {
             case GameAction.STOP_LISTEN -> {
 
                 Player sender = activeGame.getSender();
-                stateManager.removePlayerInGame(sender.getId());
                 sender.setPlaying(false);
+                stateManager.removePlayerInGame(sender.getId());
                 stateManager.updateOnlinePlayer(sender);
-
-                Player receiver = activeGame.getReceiver();
-                receiver.setPlaying(false);
-                stateManager.updateOnlinePlayer(receiver);
 
                 if (activeGame.getIsGameOn()) {
                     activeGame.setAction(GameAction.GIVE_UP);
@@ -139,11 +135,8 @@ public class ResponseManager {
 
                 Player sender = activeGame.getSender();
                 sender.setPlaying(false);
+                stateManager.removePlayerInGame(sender.getId());
                 stateManager.updateOnlinePlayer(sender);
-
-                Player receiver = activeGame.getReceiver();
-                receiver.setPlaying(false);
-                stateManager.updateOnlinePlayer(receiver);
 
                 activeGame.setErrorMessage("Opponent disconnected. You win!");
                 return forwardGame(activeGame);
