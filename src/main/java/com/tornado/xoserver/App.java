@@ -24,6 +24,7 @@ public class App extends Application {
         scene = new Scene(loadFXML(Screen.DASHBOARD));
         stage.setMaximized(true);
         stage.setScene(scene);
+        stage.setTitle("Tic Tac Toe Server");
         stage.show();
 
     }
